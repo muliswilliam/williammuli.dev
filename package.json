@@ -12,7 +12,10 @@
     "astro": "astro"
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "^4.0.38",
+    "@astrojs/node": "^11.1.2",
     "@tailwindcss/vite": "^4.3.3",
+    "ai": "^7.0.65",
     "astro": "^7.2.2",
     "geist": "^1.7.2",
     "tailwindcss": "^4.3.3"

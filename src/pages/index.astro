@@ -1,4 +1,6 @@
 ---
+export const prerender = true;
+
 import Layout from "../layouts/Layout.astro";
 import AsciiBackground from "../components/AsciiBackground.astro";
 import HoverInfo from "../components/HoverInfo.astro";
@@ -243,36 +245,6 @@ const projects = [
           if (chevron) chevron.style.transform = "rotate(180deg)";
         }
       });
-    });
-
-    const chatForm = document.getElementById("chat-form");
-    const chatInput = document.getElementById("chat-input") as HTMLTextAreaElement | null;
-    const chatSuggestions = document.querySelector<HTMLElement>(".chat-suggestions");
-
-    chatInput?.addEventListener("focus", () => {
-      chatSuggestions?.classList.remove("hidden");
-      chatSuggestions?.classList.add("flex");
-    });
-    chatInput?.addEventListener("blur", () => {
-      chatSuggestions?.classList.add("hidden");
-      chatSuggestions?.classList.remove("flex");
-    });
-
-    document.querySelectorAll<HTMLButtonElement>(".chat-suggestion").forEach((btn) => {
-      btn.addEventListener("mousedown", (e) => e.preventDefault());
-      btn.addEventListener("click", () => {
-        if (chatInput) {
-          chatInput.value = btn.textContent?.trim() ?? "";
-          chatInput.focus();
-        }
-      });
-    });
-
-    chatForm?.addEventListener("submit", (e) => {
-      e.preventDefault();
-      if (chatInput) {
-        chatInput.value = "";
-      }
     });
   </script>
 </Layout>
