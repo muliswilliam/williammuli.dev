@@ -38,16 +38,18 @@ const projects = [
   {
     name: "payroll at enterprise scale",
     tags: "TypeScript, Node.js, Payroll",
+    href: "https://www.deel.com/",
     description:
       "Payroll systems that handle different countries, company sizes and regulatory requirements without becoming impossible to reason about. Scaled real-time processing for enterprise customers with 10,000+ employees, and automated payroll-liability workflows (taxes, social insurance, pensions), removing 90%+ of the manual work.",
-    links: [],
+    links: [{ label: "deel.com", href: "https://www.deel.com/" }],
   },
   {
     name: "ai workflows that take real actions",
     tags: "Claude Agent SDK, Kubernetes, Agents",
+    href: "https://akai.run",
     description:
       "AI-powered workflows using the Claude Agent SDK and distributed Kubernetes workers. Not chat toys — they retrieve data, make decisions and trigger real actions, so permissions, traceability and recovery paths all have to be explicit.",
-    links: [],
+    links: [{ label: "akai.run", href: "https://akai.run" }],
   },
   {
     name: "brave wallet",
@@ -75,24 +77,6 @@ const projects = [
     description:
       "A small tool for sharing sensitive information without treating the server as a trusted reader. Explores client-side encryption and simple peer-to-peer communication.",
     links: [{ label: "code", href: "https://github.com/muliswilliam/secureshare" }],
-  },
-  {
-    name: "civic reporting tools",
-    tags: "Node.js, Mobile, Civic tech",
-    href: "https://apps.apple.com/us/app/action-for-transparency/id1228560483",
-    media: { type: "image" as const, src: "/projects-wm/action-transparency-app.png", alt: "Action for Transparency on the App Store" },
-    description:
-      "Secure reporting tools for people submitting sensitive corruption cases, at Transparency International, including cross-platform apps that reached 50,000+ users. Privacy and trust weren't a checkbox here — they decided whether people felt safe using the product at all.",
-    links: [{ label: "app store", href: "https://apps.apple.com/us/app/action-for-transparency/id1228560483" }],
-  },
-  {
-    name: "interactive news and data",
-    tags: "React, D3.js, BBC",
-    href: "https://www.bbc.com/news/world-africa-46308491",
-    media: { type: "image" as const, src: "/projects-wm/looted-treasures.png", alt: "Africa's Looted Treasures on BBC News" },
-    description:
-      "At the BBC, built interactive news applications and data visualisations with React, D3.js and Chart.js — making complicated information understandable without hiding the detail that matters.",
-    links: [{ label: "live", href: "https://www.bbc.com/news/world-africa-46308491" }],
   },
 ];
 ---
@@ -210,7 +194,26 @@ const projects = [
           <!-- Blog -->
           <div>
             <p class="mb-2 font-bold text-black">recent writing</p>
-            <p class="rounded-md border border-dashed border-gray-300 p-3 text-sm text-gray-400">Nothing published here yet. I'm probably still arguing with the first draft.</p>
+            <ul class="space-y-3">
+              <li>
+                <a href="https://muliswilliam.github.io/2019-08-05-how-a-browser-loads-a-page/" target="_blank" class="block rounded-md border border-gray-200 p-3 transition-colors hover:bg-gray-50">
+                  <div class="flex items-center justify-between">
+                    <h3 class="font-medium text-black">how a browser loads a page</h3>
+                    <span class="text-xs text-gray-400">aug 2019</span>
+                  </div>
+                  <p class="mt-1 text-sm text-gray-700">what happens between typing a URL and the page showing up on screen</p>
+                </a>
+              </li>
+              <li>
+                <a href="https://muliswilliam.github.io/2019-07-21-flux-architecture/" target="_blank" class="block rounded-md border border-gray-200 p-3 transition-colors hover:bg-gray-50">
+                  <div class="flex items-center justify-between">
+                    <h3 class="font-medium text-black">understanding flux architecture</h3>
+                    <span class="text-xs text-gray-400">jul 2019</span>
+                  </div>
+                  <p class="mt-1 text-sm text-gray-700">unidirectional data flow, and why it makes application state easier to reason about</p>
+                </a>
+              </li>
+            </ul>
           </div>
 
           <!-- Links -->
