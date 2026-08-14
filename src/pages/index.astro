@@ -1,132 +1,346 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import WorkCard from "../components/WorkCard.astro";
-import { site, socialMeta, social } from "../data/site";
-import { selectedWork, experiencePreview } from "../data/work";
-import { nowItems, nowUpdated } from "../data/now";
-import { getPublishedArticles } from "../lib/writing";
+import AsciiBackground from "../components/AsciiBackground.astro";
+import HoverInfo from "../components/HoverInfo.astro";
+import ProjectRow from "../components/ProjectRow.astro";
+import ChatBox from "../components/ChatBox.astro";
 
-const articles = (await getPublishedArticles()).slice(0, 3);
+const icons = {
+  github:
+    '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 256 256"><path d="M208.31,75.68A59.78,59.78,0,0,0,202.93,28,8,8,0,0,0,196,24a59.75,59.75,0,0,0-48,24H124A59.75,59.75,0,0,0,76,24a8,8,0,0,0-6.93,4,59.78,59.78,0,0,0-5.38,47.68A58.14,58.14,0,0,0,56,104v8a56.06,56.06,0,0,0,48.44,55.47A39.8,39.8,0,0,0,96,192v8H72a24,24,0,0,1-24-24A40,40,0,0,0,8,136a8,8,0,0,0,0,16,24,24,0,0,1,24,24,40,40,0,0,0,40,40H96v16a8,8,0,0,0,16,0V192a24,24,0,0,1,48,0v40a8,8,0,0,0,16,0V192a39.8,39.8,0,0,0-8.44-24.53A56.06,56.06,0,0,0,216,112v-8A58.14,58.14,0,0,0,208.31,75.68ZM200,112a40,40,0,0,1-40,40H112a40,40,0,0,1-40-40v-8a41.74,41.74,0,0,1,6.9-22.48A8,8,0,0,0,80,73.83a43.81,43.81,0,0,1,.79-33.58,43.88,43.88,0,0,1,32.32,20.06A8,8,0,0,0,119.82,64h32.35a8,8,0,0,0,6.74-3.69,43.87,43.87,0,0,1,32.32-20.06A43.81,43.81,0,0,1,192,73.83a8.09,8.09,0,0,0,1,7.65A41.72,41.72,0,0,1,200,104Z"></path></svg>',
+  twitter:
+    '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 256 256"><path d="M214.75,211.71l-62.6-98.38,61.77-67.95a8,8,0,0,0-11.84-10.76L143.24,99.34,102.75,35.71A8,8,0,0,0,96,32H48a8,8,0,0,0-6.75,12.3l62.6,98.37-61.77,68a8,8,0,1,0,11.84,10.76l58.84-64.72,40.49,63.63A8,8,0,0,0,160,224h48a8,8,0,0,0,6.75-12.29ZM164.39,208,62.57,48h29L193.43,208Z"></path></svg>',
+  linkedin:
+    '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 256 256"><path d="M216,24H40A16,16,0,0,0,24,40V216a16,16,0,0,0,16,16H216a16,16,0,0,0,16-16V40A16,16,0,0,0,216,24Zm0,192H40V40H216V216ZM96,112v64a8,8,0,0,1-16,0V112a8,8,0,0,1,16,0Zm88,28v36a8,8,0,0,1-16,0V140a20,20,0,0,0-40,0v36a8,8,0,0,1-16,0V112a8,8,0,0,1,15.79-1.78A36,36,0,0,1,184,140ZM100,84A12,12,0,1,1,88,72,12,12,0,0,1,100,84Z"></path></svg>',
+  email:
+    '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 256 256"><path d="M224,48H32a8,8,0,0,0-8,8V192a16,16,0,0,0,16,16H216a16,16,0,0,0,16-16V56A8,8,0,0,0,224,48Zm-96,85.15L52.57,64H203.43ZM98.71,128,40,181.81V74.19Zm11.84,10.85,12,11.05a8,8,0,0,0,10.82,0l12-11.05,58,53.15H52.57ZM157.29,128,216,74.18V181.82Z"></path></svg>',
+};
+
+const projects = [
+  {
+    name: "webhook-tester",
+    tags: "Go, DevTools, Webhooks",
+    href: "https://github.com/muliswilliam/webhook-tester",
+    media: { type: "image" as const, src: "/projects-wm/webhook-tester.png", alt: "webhook-tester GitHub repo" },
+    description:
+      "A lightweight, developer-friendly platform for catching, inspecting and replaying webhooks. Built in Go, because staring at ngrok logs got old. 111 stars in and still adding features.",
+    links: [{ label: "code", href: "https://github.com/muliswilliam/webhook-tester" }],
+  },
+  {
+    name: "secureshare",
+    tags: "Security, Sharing, Next.js",
+    href: "https://github.com/muliswilliam/secureshare",
+    media: { type: "image" as const, src: "/projects-wm/secureshare.png", alt: "secureshare GitHub repo" },
+    description:
+      "End-to-end encrypted file and password sharing. Paste something secret, get a link that (mostly) self-destructs. Next.js on the front, Node on the back.",
+    links: [{ label: "code", href: "https://github.com/muliswilliam/secureshare" }],
+  },
+  {
+    name: "activity",
+    tags: "Django, Nonprofit, Open Source",
+    href: "https://github.com/hikaya-io/activity",
+    media: { type: "image" as const, src: "/projects-wm/activity-ce.png", alt: "Activity CE GitHub repo" },
+    description:
+      "Open-source project tracker for nonprofits, so NGOs can manage activities and indicator results without a spreadsheet apocalypse. Django, Postgres, Bootstrap, built with the Hikaya team.",
+    links: [{ label: "code", href: "https://github.com/hikaya-io/activity" }],
+  },
+  {
+    name: "nigeria elections dashboard",
+    tags: "Data Viz, Node.js, BBC",
+    href: "https://www.bbc.co.uk/news/resources/idt-f0b25208-4a1d-4068-a204-940cbe88d1d3",
+    media: { type: "image" as const, src: "/projects-wm/nigeria-elections.png", alt: "Nigeria Elections Dashboard on BBC News" },
+    description:
+      "Live results dashboard for Nigeria's 2019 presidential election, built for BBC News and updated as the votes rolled in. Webpack, Handlebars, plain old Node.js under the hood.",
+    links: [{ label: "live", href: "https://www.bbc.co.uk/news/resources/idt-f0b25208-4a1d-4068-a204-940cbe88d1d3" }],
+  },
+  {
+    name: "africa's looted treasures",
+    tags: "SVG, Data Viz, BBC",
+    href: "https://www.bbc.com/news/world-africa-46308491",
+    media: { type: "image" as const, src: "/projects-wm/looted-treasures.png", alt: "Africa's Looted Treasures on BBC News" },
+    description:
+      "An animated, quiz-driven explainer for BBC on where Africa's looted artifacts ended up. Scroll, answer, get a score. SVG path animation doing most of the heavy lifting.",
+    links: [{ label: "live", href: "https://www.bbc.com/news/world-africa-46308491" }],
+  },
+  {
+    name: "action for transparency",
+    tags: "Civic Tech, Ionic, Angular",
+    href: "https://apps.apple.com/us/app/action-for-transparency/id1228560483",
+    media: { type: "image" as const, src: "/projects-wm/action-transparency-app.png", alt: "Action for Transparency on the App Store" },
+    description:
+      "A civic-tech app that lets Kenyan citizens report suspected corruption and track government spending, reaching 50,000+ users. Built to defend the right to education and healthcare, one report at a time.",
+    links: [{ label: "app store", href: "https://apps.apple.com/us/app/action-for-transparency/id1228560483" }],
+  },
+  {
+    name: "africa women in tech",
+    tags: "PWA, WordPress, Community",
+    href: "https://africanwomenintech.com/",
+    description:
+      "PWA landing page, registration and event-management system for a conference series empowering women in African tech. Offline-friendly, because conference wifi is never to be trusted.",
+    links: [{ label: "live", href: "https://africanwomenintech.com/" }],
+  },
+  {
+    name: "kupfer",
+    tags: "Enterprise, Angular, Client Work",
+    description:
+      "Paperless field-ops app built for Viessmann installers: scheduling, contacts, invoicing, and an offline-first mobile companion that syncs when it finds signal again. Private client work, so no public link, sorry.",
+    links: [],
+  },
+];
+
+const workedFrom = [
+  { emoji: "🇰🇪", label: "Nairobi, Kenya" },
+  { emoji: "🇬🇧", label: "London, UK (BBC)" },
+  { emoji: "🇩🇪", label: "Germany (Humanitec)" },
+  { emoji: "🇺🇸", label: "USA (Brave, Fitts)" },
+  { emoji: "🌍", label: "150+ countries (Deel)" },
+];
+
+const mentorship = [
+  { emoji: "🧑‍💻", label: "Deel — 10+ engineers" },
+  { emoji: "🧑‍💻", label: "Fitts Inc — team of 10" },
+  { emoji: "🧑‍💻", label: "Alternate Ltd — 100+ clients trained" },
+];
 ---
 
-<Layout title={socialMeta.home.title} description={socialMeta.home.description}>
-  <main class="mx-auto max-w-3xl px-8 pb-20 font-mono text-sm leading-relaxed md:px-16">
-    <!-- Hero -->
-    <section class="pt-6 pb-4">
-      <p class="text-xs font-bold uppercase tracking-wide text-gray-500">{site.descriptor}</p>
-      <h1 class="mt-3 text-2xl font-bold text-black md:text-3xl">I build systems people can rely on.</h1>
-      <div class="mt-4 space-y-3 text-gray-700">
-        <p>I'm William, a software engineer and engineering lead based in Nairobi. I work on payroll infrastructure, distributed backend systems and AI-powered workflows.</p>
-        <p>I write about the parts of software that become interesting after the happy path: queues, retries, permissions, observability, latency and the trade-offs behind systems that have to work in production.</p>
-      </div>
-      <p class="mt-4 rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-xs text-gray-600">
-        Currently going deeper into agent reliability and LLM inference engineering.
-      </p>
-      <div class="mt-5 flex gap-4">
-        <a href="/writing/" class="text-black underline hover:no-underline">Read my writing</a>
-        <a href="#work" class="text-black underline hover:no-underline">See selected work</a>
-      </div>
-    </section>
+<Layout
+  title="William Muli - Senior Software Engineer & Team Lead"
+  description="Portfolio | William Muli - Senior Software Engineer & Team Lead"
+>
+  <div class="relative min-h-screen overflow-hidden">
+    <AsciiBackground />
 
-    <!-- Today -->
-    <section class="mt-14">
-      <p class="font-bold text-black">today</p>
-      <h2 class="mt-2 text-lg font-bold text-black">Mostly backend systems. Increasingly, production AI.</h2>
-      <div class="mt-3 space-y-3 text-gray-700">
-        <p>I currently work at Deel, where I help build payroll systems and AI-powered workflows. The work ranges from event-driven services and payroll processing to distributed agent workers running on Kubernetes.</p>
-        <p>A lot of my time goes into the parts users rarely see: defining system boundaries, making asynchronous work observable, planning for partial failures and making sure a retry does not create a second problem.</p>
-        <p>I also help other engineers think through designs, review difficult changes and make sensible trade-offs. I enjoy leading teams, but I still like being close to the code.</p>
-      </div>
-      <blockquote class="mt-4 border-l-2 border-gray-300 pl-4 text-sm italic text-gray-600">
-        The demo is usually the easy part. The real work begins when the system needs permissions, retries, observability and a safe way to fail.
-      </blockquote>
-    </section>
+    <main class="relative z-10 mx-auto mt-5 max-w-3xl p-8 md:p-16">
+      <div class="font-mono text-sm leading-relaxed">
+        <div class="space-y-8 pb-10">
+          <!-- Header -->
+          <div>
+            <div class="flex w-full items-center justify-between font-normal text-black">
+              <p>william muli</p>
+              <div class="text-right">
+                <a
+                  href="https://dissectpodcast.com/"
+                  target="_blank"
+                  class="flex items-center justify-end gap-1 text-xs text-gray-500"
+                >
+                  listening to 🎧 dissect
+                </a>
+                <span class="text-xs text-gray-500">(Nairobi, Kenya 🇰🇪)</span>
+              </div>
+            </div>
 
-    <!-- Selected work -->
-    <section id="work" class="mt-14 scroll-mt-20">
-      <p class="font-bold text-black">selected work</p>
-      <h2 class="mt-2 text-lg font-bold text-black">A few systems I've helped build.</h2>
-      <p class="mt-3 text-gray-700">My work has moved across payroll, AI automation, browser wallets, developer tools and civic technology. Here are a few projects that shaped how I think about engineering.</p>
-      <div class="mt-5 space-y-4">
-        {selectedWork.map((item) => <WorkCard {...item} />)}
-      </div>
-    </section>
+            <div class="mt-3 w-fit rounded-md border border-gray-300 px-1 py-0.5 text-[10px] text-gray-500">
+              PAYROLL, PLATFORMS, AI AGENTS
+            </div>
 
-    <!-- Recent writing -->
-    <section class="mt-14">
-      <p class="font-bold text-black">recent writing</p>
-      <h2 class="mt-2 text-lg font-bold text-black">Notes from building systems that have to work.</h2>
-      <p class="mt-3 text-gray-700">I use writing to make technical ideas clearer to myself. Expect practical notes on backend systems, production AI, inference engineering and the occasional return to browser internals.</p>
-      {
-        articles.length > 0 ? (
-          <ul class="mt-5 space-y-3">
-            {articles.map((article) => (
+            <div class="flex h-[20px] items-center gap-1 py-2 pt-4">
+              ships really
+              <span class="group relative inline-block">
+                <span class="block italic underline decoration-neutral-300 underline-offset-2 group-hover:hidden">fast.</span>
+                <img alt="fast" width="120" height="120" class="hidden group-hover:block" src="/racing-car.webp" />
+              </span>
+            </div>
+          </div>
+
+          <!-- Today -->
+          <div>
+            <span class="font-bold text-black">today</span>
+            <div class="mt-2.5">
+              I'm a senior software engineer and team lead at{" "}
+              <a
+                href="https://www.deel.com/"
+                target="_blank"
+                class="inline-flex items-center rounded border border-neutral-200 bg-black p-1 text-sm leading-4 text-neutral-100 no-underline"
+              >
+                <img alt="Deel logo" width="16" height="16" class="mr-1 rounded" src="/logos-wm/deel.png" />Deel
+              </a>, running payroll for 40,000+ companies across 150+ countries (yes, that much payroll).
+            </div>
+            <div class="mt-2.5">
+              enjoys{" "}
+              <HoverInfo
+                label="travelling"
+                ariaLabel="Where I've shipped code from"
+                heading="Worked from"
+                description="Remote-first, Nairobi-based, but the commits have crossed a few borders."
+                flags={workedFrom}
+              />, hip hop and Dissect reruns, and also going deep on agentic AI workflows.
+            </div>
+            <div class="mt-2.5">
+              i also{" "}
+              <HoverInfo
+                label="mentor"
+                ariaLabel="View mentorship history"
+                heading="Mentorship"
+                description="Coaching engineers through code reviews, design reviews, and the occasional pep talk."
+                flags={mentorship}
+              />, go{" "}
+              <HoverInfo
+                label="on-call"
+                ariaLabel="View on-call and reliability duties"
+                heading="On-call & Reliability"
+                description="Own production reliability end-to-end: monitoring, incident response, and the pages that come with it. Datadog is basically a second monitor."
+              /> and lead engineering for a platform trusted by 40,000+ companies.
+            </div>
+          </div>
+
+          <!-- Past -->
+          <div>
+            <p class="font-bold text-black">past</p>
+            <div class="mt-2.5 space-y-1.5">
+              <div class="flex flex-wrap items-center gap-1">
+                <a href="https://brave.com/wallet/" target="_blank" class="inline-flex items-center gap-1 text-black underline hover:no-underline">
+                  <img alt="Brave" width="16" height="16" class="rounded border border-gray-200" src="/logos-wm/brave.png" />brave,
+                </a>
+                <span class="text-gray-700">senior software engineer — scaled Brave Wallet to 10M+ users</span>
+              </div>
+              <div class="flex flex-wrap items-center gap-1">
+                <span class="inline-flex h-4 w-4 items-center justify-center rounded border border-gray-200 bg-gray-100 text-[9px] font-bold text-gray-500">F</span>
+                <a href="#" class="text-black underline hover:no-underline">fitts inc,</a>
+                <span class="text-gray-700">senior software engineer &amp; team lead — led 10 engineers</span>
+              </div>
+              <div class="flex flex-wrap items-center gap-1">
+                <a href="https://humanitec.com" target="_blank" class="inline-flex items-center gap-1 text-black underline hover:no-underline">
+                  <img alt="Humanitec" width="16" height="16" class="rounded border border-gray-200" src="/logos-wm/humanitec.png" />humanitec,
+                </a>
+                <span class="text-gray-700">senior software developer</span>
+              </div>
+              <div class="flex flex-wrap items-center gap-1">
+                <a href="https://www.bbc.co.uk" target="_blank" class="inline-flex items-center gap-1 text-black underline hover:no-underline">
+                  <img alt="BBC" width="16" height="16" class="rounded border border-gray-200" src="/logos-wm/bbc.png" />bbc,
+                </a>
+                <span class="text-gray-700">software engineer — visual journalism</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Personal projects -->
+          <div>
+            <p class="mb-2 font-bold text-black">personal projects</p>
+            <div id="projects-list">
+              {projects.map((p) => <ProjectRow {...p} />)}
+            </div>
+          </div>
+
+          <!-- Fun projects -->
+          <div class="relative flex items-start gap-3">
+            <img alt="fun projects doodle" width="64" height="91" src="/doodles/gameboy.png" class="flex-shrink-0" />
+            <div>
+              <a href="https://muliswilliam.github.io/projects" target="_blank" class="group flex items-center gap-1">
+                <span class="font-bold text-black group-hover:underline">fun projects</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 256 256">
+                  <path d="M200,64V168a8,8,0,0,1-16,0V83.31L69.66,197.66a8,8,0,0,1-11.32-11.32L172.69,72H88a8,8,0,0,1,0-16H192A8,8,0,0,1,200,64Z"></path>
+                </svg>
+                <span class="rounded bg-black px-1 py-0.5 text-[10px] font-bold text-white">FUN</span>
+              </a>
+              <p class="mt-1 text-sm text-gray-700">a Marvel trivia app, a dark-mode Hacker News clone, a coin-change calculator — small things I built for fun, collected on my old site.</p>
+            </div>
+          </div>
+
+          <!-- Blog -->
+          <div>
+            <a href="https://muliswilliam.github.io" target="_blank" class="mb-2 flex w-full items-center gap-1 font-bold text-black">
+              blog
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 256 256">
+                <path d="M200,64V168a8,8,0,0,1-16,0V83.31L69.66,197.66a8,8,0,0,1-11.32-11.32L172.69,72H88a8,8,0,0,1,0-16H192A8,8,0,0,1,200,64Z"></path>
+              </svg>
+            </a>
+            <ul class="space-y-3">
               <li>
-                <a href={`/writing/${article.id}/`} class="block rounded-md border border-gray-200 p-3 transition-colors hover:bg-gray-50">
-                  <h3 class="font-medium text-black">{article.data.title}</h3>
-                  <p class="mt-1 text-sm text-gray-700">{article.data.description}</p>
+                <a href="https://muliswilliam.github.io/2019/08/05/how-a-browser-loads-a-page.html" target="_blank" class="block rounded-md border border-gray-200 p-3 transition-colors hover:bg-gray-50">
+                  <div class="flex items-center justify-between">
+                    <h3 class="font-medium text-black">how a browser loads a page</h3>
+                    <span class="text-xs text-gray-400">aug 2019</span>
+                  </div>
+                  <p class="mt-1 text-sm text-gray-700">what actually happens between hitting enter in the address bar and pixels on your screen</p>
                 </a>
               </li>
-            ))}
-          </ul>
-        ) : (
-          <p class="mt-5 rounded-md border border-dashed border-gray-300 p-4 text-sm text-gray-400">Nothing published here yet. I'm probably still arguing with the first draft.</p>
-        )
+              <li>
+                <a href="https://muliswilliam.github.io/2019/07/21/understanding-flux-architecture.html" target="_blank" class="block rounded-md border border-gray-200 p-3 transition-colors hover:bg-gray-50">
+                  <div class="flex items-center justify-between">
+                    <h3 class="font-medium text-black">understanding flux architecture</h3>
+                    <span class="text-xs text-gray-400">jul 2019</span>
+                  </div>
+                  <p class="mt-1 text-sm text-gray-700">unidirectional data flow, explained without the whiteboard</p>
+                </a>
+              </li>
+            </ul>
+            <p class="mt-2 text-xs text-gray-400">haven't posted since 2019. long overdue for a sequel.</p>
+          </div>
+
+          <!-- Open source -->
+          <div>
+            <p class="mb-2 font-bold text-black">open source</p>
+            <div class="space-y-1">
+              <a href="https://github.com/brave/brave-core" target="_blank" class="block text-black underline hover:no-underline">brave/brave-core - browser & wallet engine</a>
+              <a href="https://github.com/hikaya-io/activity" target="_blank" class="block text-black underline hover:no-underline">hikaya-io/activity - nonprofit project tracker</a>
+            </div>
+          </div>
+
+          <!-- Links -->
+          <div>
+            <p class="mb-2 font-bold text-black">links</p>
+            <div class="flex flex-wrap gap-4">
+              <a href="https://github.com/muliswilliam" target="_blank" class="flex items-center gap-2 text-black underline hover:no-underline" set:html={`${icons.github}github`} />
+              <a href="https://twitter.com/muliswilliam" target="_blank" class="flex items-center gap-2 text-black underline hover:no-underline" set:html={`${icons.twitter}x/twitter`} />
+              <a href="https://linkedin.com/in/muliswilliam" target="_blank" class="flex items-center gap-2 text-black underline hover:no-underline" set:html={`${icons.linkedin}linkedin`} />
+              <a href="mailto:willi.wambu@gmail.com" class="flex items-center gap-2 text-black underline hover:no-underline" set:html={`${icons.email}email`} />
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <ChatBox />
+  </div>
+
+  <script>
+    document.querySelectorAll<HTMLButtonElement>(".project-toggle").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const row = btn.closest(".project-row");
+        const panel = row?.querySelector<HTMLElement>(".project-panel");
+        const chevron = btn.querySelector<HTMLElement>(".chevron");
+        const isOpen = row?.classList.contains("is-open");
+
+        if (isOpen) {
+          row?.classList.remove("is-open", "mt-1", "overflow-hidden", "rounded-md", "border", "bg-gray-100/50", "px-3", "py-1");
+          panel?.classList.add("hidden");
+          if (chevron) chevron.style.transform = "rotate(0deg)";
+        } else {
+          row?.classList.add("is-open", "mt-1", "overflow-hidden", "rounded-md", "border", "bg-gray-100/50", "px-3", "py-1");
+          panel?.classList.remove("hidden");
+          if (chevron) chevron.style.transform = "rotate(180deg)";
+        }
+      });
+    });
+
+    const chatForm = document.getElementById("chat-form");
+    const chatInput = document.getElementById("chat-input") as HTMLTextAreaElement | null;
+    const chatSuggestions = document.querySelector<HTMLElement>(".chat-suggestions");
+
+    chatInput?.addEventListener("focus", () => {
+      chatSuggestions?.classList.remove("hidden");
+      chatSuggestions?.classList.add("flex");
+    });
+    chatInput?.addEventListener("blur", () => {
+      chatSuggestions?.classList.add("hidden");
+      chatSuggestions?.classList.remove("flex");
+    });
+
+    document.querySelectorAll<HTMLButtonElement>(".chat-suggestion").forEach((btn) => {
+      btn.addEventListener("mousedown", (e) => e.preventDefault());
+      btn.addEventListener("click", () => {
+        if (chatInput) {
+          chatInput.value = btn.textContent?.trim() ?? "";
+          chatInput.focus();
+        }
+      });
+    });
+
+    chatForm?.addEventListener("submit", (e) => {
+      e.preventDefault();
+      if (chatInput) {
+        chatInput.value = "";
       }
-      <a href="/writing/" class="mt-4 inline-block text-sm text-black underline hover:no-underline">See all writing</a>
-    </section>
-
-    <!-- Experience preview -->
-    <section class="mt-14">
-      <p class="font-bold text-black">past</p>
-      <h2 class="mt-2 text-lg font-bold text-black">More than a decade of building software.</h2>
-      <p class="mt-3 text-gray-700">I started with collaboration tools and civic technology, moved through media and developer platforms, and eventually found my way into browser wallets, payroll infrastructure and production AI.</p>
-      <div class="mt-5 space-y-4">
-        {
-          experiencePreview.map((item) => (
-            <div>
-              <p class="font-medium text-black">{item.company}</p>
-              <p class="text-xs text-gray-500">{item.role}</p>
-              <p class="mt-1 text-sm text-gray-700">{item.summary}</p>
-            </div>
-          ))
-        }
-      </div>
-      <a href="/about/" class="mt-4 inline-block text-sm text-black underline hover:no-underline">Read the longer version</a>
-    </section>
-
-    <!-- Now -->
-    <section id="now" class="mt-14 scroll-mt-20">
-      <p class="font-bold text-black">now</p>
-      <h2 class="mt-2 text-lg font-bold text-black">What I'm spending time on.</h2>
-      <div class="mt-5 grid gap-4 md:grid-cols-2">
-        {
-          nowItems.map((item) => (
-            <div class="rounded-md border border-gray-200 p-4">
-              <p class="text-xs font-bold uppercase tracking-wide text-gray-500">{item.label}</p>
-              <p class="mt-1 font-medium text-black">{item.title}</p>
-              <p class="mt-1 text-sm text-gray-700">{item.description}</p>
-            </div>
-          ))
-        }
-      </div>
-      <p class="mt-4 text-xs text-gray-400">{nowUpdated}</p>
-    </section>
-
-    <!-- Contact -->
-    <section id="contact" class="mt-14 scroll-mt-20">
-      <p class="font-bold text-black">elsewhere</p>
-      <h2 class="mt-2 text-lg font-bold text-black">Let's compare notes.</h2>
-      <div class="mt-3 space-y-3 text-gray-700">
-        <p>If you're working on backend systems, production AI, developer tools or something with an interesting failure mode, I'd be happy to hear from you.</p>
-        <p>The best way to reach me is by email. You can also find my work and shorter notes on GitHub, LinkedIn and X.</p>
-      </div>
-      <div class="mt-4 flex flex-wrap gap-4">
-        <a href={social.email} class="text-black underline hover:no-underline">Send me an email</a>
-        <a href={social.github} target="_blank" class="text-black underline hover:no-underline">GitHub</a>
-        <a href={social.linkedin} target="_blank" class="text-black underline hover:no-underline">LinkedIn</a>
-        <a href={social.x} target="_blank" class="text-black underline hover:no-underline">X</a>
-      </div>
-    </section>
-  </main>
+    });
+  </script>
 </Layout>

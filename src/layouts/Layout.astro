@@ -1,44 +1,35 @@
 ---
 import "../styles/global.css";
-import Nav from "../components/Nav.astro";
-import Footer from "../components/Footer.astro";
-import { site, socialMeta } from "../data/site";
 
 interface Props {
   title?: string;
   description?: string;
 }
 
-const { title = socialMeta.home.title, description = socialMeta.home.description } = Astro.props;
-
-const canonicalUrl = new URL(Astro.url.pathname, site.url);
+const {
+  title = "William Muli - Senior Software Engineer & Team Lead",
+  description = "Portfolio | William Muli - Senior Software Engineer & Team Lead",
+} = Astro.props;
 ---
 
 <!doctype html>
-<html lang="en" class="scroll-smooth">
+<html lang="en" class="overscroll-contain scroll-smooth">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/favicon.svg" />
-    <link rel="alternate" type="application/rss+xml" title={site.name} href="/rss.xml" />
-    <link rel="canonical" href={canonicalUrl} />
     <meta name="description" content={description} />
-    <meta property="og:type" content="website" />
-    <meta property="og:site_name" content={site.name} />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:url" content={canonicalUrl} />
-    <meta name="twitter:card" content="summary" />
-    <meta name="twitter:title" content={title} />
-    <meta name="twitter:description" content={description} />
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:title" content={title} />
+    <meta property="twitter:description" content={description} />
     <title>{title}</title>
   </head>
-  <body class="flex min-h-dvh flex-col bg-[#fdfff4] font-sans text-black antialiased">
-    <Nav />
-    <div class="flex-1">
-      <slot />
-    </div>
-    <Footer />
+  <body class="bg-[#fdfff4] font-sans antialiased">
+    <slot />
   </body>
 </html>
