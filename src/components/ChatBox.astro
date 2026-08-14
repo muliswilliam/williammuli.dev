@@ -130,15 +130,16 @@ const suggestions = [
     history.push({ role: "assistant", content: received || assistantBubble.textContent || "" });
     sending = false;
     if (sendButton) sendButton.disabled = false;
+    suggestionsEl?.classList.remove("hidden");
+    suggestionsEl?.classList.add("flex");
+    chatInput?.focus();
   }
 
   chatInput?.addEventListener("focus", () => {
-    if (started) return;
     suggestionsEl?.classList.remove("hidden");
     suggestionsEl?.classList.add("flex");
   });
   chatInput?.addEventListener("blur", () => {
-    if (started) return;
     suggestionsEl?.classList.add("hidden");
     suggestionsEl?.classList.remove("flex");
   });

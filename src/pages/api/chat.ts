@@ -35,7 +35,7 @@ export const POST: APIRoute = async ({ request }) => {
     model: anthropic(MODEL_ID),
     system: cvContext,
     messages: messages.slice(-20),
-    maxOutputTokens: 500,
+    maxOutputTokens: 120,
   });
 
   return result.toTextStreamResponse();
