@@ -7,13 +7,13 @@ interface LinkItem {
 interface Props {
   name: string;
   tags: string;
-  href: string;
-  media: { type: "image" | "video"; src: string; alt?: string };
+  href?: string;
+  media?: { type: "image" | "video"; src: string; alt?: string };
   description: string;
-  links: LinkItem[];
+  links?: LinkItem[];
 }
 
-const { name, tags, href, media, description, links } = Astro.props;
+const { name, tags, href, media, description, links = [] } = Astro.props;
 
 const linkIcon =
   '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 256 256"><path d="M200,64V168a8,8,0,0,1-16,0V83.31L69.66,197.66a8,8,0,0,1-11.32-11.32L172.69,72H88a8,8,0,0,1,0-16H192A8,8,0,0,1,200,64Z"></path></svg>';
@@ -40,15 +40,21 @@ const linkIcon =
   </button>
   <div class="project-panel hidden px-0 py-2">
     <div class="flex flex-col gap-4 md:flex-row">
-      <a href={href} target="_blank" rel="noopener noreferrer" class="w-full flex-shrink-0 rounded-md border border-gray-200 md:max-w-[300px]">
-        {
-          media.type === "video" ? (
-            <video src={media.src} autoplay loop playsinline muted class="h-fit max-h-[300px] w-full rounded-md object-contain" />
-          ) : (
-            <img src={media.src} alt={media.alt ?? name} width="300" height="200" class="h-full w-full rounded-md object-contain" />
-          )
-        }
-      </a>
+      {
+        media ? (
+          <a href={href} target="_blank" rel="noopener noreferrer" class="w-full flex-shrink-0 rounded-md border border-gray-200 md:max-w-[300px]">
+            {media.type === "video" ? (
+              <video src={media.src} autoplay loop playsinline muted class="h-fit max-h-[300px] w-full rounded-md object-contain" />
+            ) : (
+              <img src={media.src} alt={media.alt ?? name} width="300" height="200" class="h-full w-full rounded-md object-contain" />
+            )}
+          </a>
+        ) : (
+          <div class="flex w-full flex-shrink-0 items-center justify-center rounded-md border border-dashed border-gray-300 bg-gray-50 p-6 text-center text-sm text-gray-400 md:max-w-[300px]">
+            {name}
+          </div>
+        )
+      }
       <div class="flex-1">
         <p class="mb-3 text-sm text-gray-700">{description}</p>
         <div class="flex flex-wrap">
