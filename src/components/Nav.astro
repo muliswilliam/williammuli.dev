@@ -1,0 +1,16 @@
+---
+import { nav, site } from "../data/site";
+---
+
+<header class="mx-auto flex max-w-3xl flex-wrap items-center justify-between gap-2 px-8 py-6 font-mono text-sm md:px-16">
+  <a href="/" class="font-bold text-black hover:underline">{site.name.toLowerCase()}</a>
+  <nav class="flex flex-wrap gap-3 md:gap-4">
+    {
+      nav.map((item) => (
+        <a href={item.href} class="text-gray-600 underline decoration-neutral-300 decoration-wavy underline-offset-2 hover:text-black hover:decoration-neutral-500">
+          {item.label}
+        </a>
+      ))
+    }
+  </nav>
+</header>

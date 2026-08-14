@@ -1,0 +1,132 @@
+---
+import Layout from "../layouts/Layout.astro";
+import WorkCard from "../components/WorkCard.astro";
+import { socialMeta, social } from "../data/site";
+import { fullExperience, additionalWork } from "../data/work";
+
+const approach = [
+  {
+    title: "Start with the real problem",
+    body: "The first version of a request is often a solution wearing a problem's clothes. I like spending enough time with users, product teams and operators to understand what actually needs to change before committing to an architecture.",
+  },
+  {
+    title: "Keep failure visible",
+    body: "Distributed systems fail in partial and occasionally creative ways. I prefer designs that make retries, state transitions and ownership explicit, with enough observability to explain what happened without reading tea leaves from production logs.",
+  },
+  {
+    title: "Use complexity carefully",
+    body: "Some problems genuinely need queues, workers, caches and multiple services. Others need a transaction and a well-named function. I try not to confuse a more impressive diagram with a better system.",
+  },
+  {
+    title: "Stay close to the work",
+    body: "I enjoy technical leadership, but I do not want to lead exclusively through documents and meetings. Design discussions, code reviews, incidents and implementation details are often where the important context lives.",
+  },
+];
+
+const toolbox = [
+  { label: "Usually working with", tools: "TypeScript · Node.js · NestJS · PostgreSQL · Redis · NATS · AWS · Kubernetes · React" },
+  { label: "AI and automation", tools: "Claude Agent SDK · Agentic workflows · LLM integrations · LangChain · Vercel AI SDK" },
+  { label: "Also worked with", tools: "Go · GraphQL · Azure · React Native · Angular · C# · Solidity · Solana · EVM systems · D3.js" },
+];
+---
+
+<Layout title={socialMeta.about.title} description={socialMeta.about.description}>
+  <main class="mx-auto max-w-3xl px-8 pb-20 font-mono text-sm leading-relaxed md:px-16">
+    <section class="pt-6">
+      <p class="text-xs font-bold uppercase tracking-wide text-gray-500">about</p>
+      <h1 class="mt-3 text-2xl font-bold text-black md:text-3xl">I like useful software and understandable systems.</h1>
+      <p class="mt-4 text-gray-700">I'm William Muli, a software engineer and engineering lead based in Nairobi, Kenya.</p>
+    </section>
+
+    <section class="mt-10 space-y-3 text-gray-700">
+      <p>I've spent more than ten years building production software across payroll, global workforce platforms, browser wallets, media, civic technology and enterprise tools.</p>
+      <p>Most of my recent work has been on backend systems: TypeScript and Node.js services, PostgreSQL, asynchronous messaging, Kubernetes and the operational work required to keep everything running. I enjoy tracing a product requirement all the way down to the services, data models and failure modes underneath it.</p>
+      <p>At Deel, I work on payroll infrastructure and AI-powered workflows. Before that, I helped build Brave Wallet across browser, backend and blockchain layers, including Solana support, NFT experiences, fiat on-ramps and APIs used by millions of clients.</p>
+      <p>I have also led and mentored engineering teams. My approach is fairly practical: make the problem clear, encourage honest technical debate, give people ownership and stay close enough to the work to be useful.</p>
+      <p>Lately, I've been learning more about LLM inference engineering and the systems around production agents—evaluation, permissions, orchestration, observability and failure recovery. I write here to clarify what I'm learning and share what has worked in practice.</p>
+    </section>
+
+    <!-- Engineering approach -->
+    <section class="mt-14">
+      <h2 class="text-lg font-bold text-black">How I tend to work</h2>
+      <div class="mt-5 space-y-5">
+        {
+          approach.map((item) => (
+            <div>
+              <p class="font-medium text-black">{item.title}</p>
+              <p class="mt-1 text-gray-700">{item.body}</p>
+            </div>
+          ))
+        }
+      </div>
+    </section>
+
+    <!-- Complete experience -->
+    <section class="mt-14">
+      <h2 class="text-lg font-bold text-black">Complete experience</h2>
+      <div class="mt-5 space-y-8">
+        {
+          fullExperience.map((job) => (
+            <div>
+              <p class="font-bold text-black">{job.company}</p>
+              <p class="text-xs text-gray-500">{job.role} · {job.dates}</p>
+              <div class="mt-2 space-y-2 text-gray-700">
+                {job.summary.map((p) => <p>{p}</p>)}
+              </div>
+            </div>
+          ))
+        }
+      </div>
+    </section>
+
+    <!-- Additional work -->
+    <section class="mt-14">
+      <h2 class="text-lg font-bold text-black">Additional work</h2>
+      <div class="mt-5 space-y-4">
+        {additionalWork.map((item) => <WorkCard {...item} />)}
+      </div>
+    </section>
+
+    <!-- Technical toolbox -->
+    <section class="mt-14">
+      <h2 class="text-lg font-bold text-black">Tools I reach for</h2>
+      <p class="mt-3 text-gray-700">I care more about choosing tools that fit the problem than maintaining a long technology checklist. That said, these are the areas where I have spent most of my time.</p>
+      <div class="mt-5 space-y-3">
+        {
+          toolbox.map((group) => (
+            <div>
+              <p class="text-xs font-bold uppercase tracking-wide text-gray-500">{group.label}</p>
+              <p class="mt-1 text-gray-700">{group.tools}</p>
+            </div>
+          ))
+        }
+      </div>
+    </section>
+
+    <!-- Leadership -->
+    <section class="mt-14">
+      <h2 class="text-lg font-bold text-black">Leadership without leaving engineering behind</h2>
+      <div class="mt-3 space-y-3 text-gray-700">
+        <p>I've led and mentored teams of up to ten engineers through delivery planning, architecture discussions, code reviews and production problems.</p>
+        <p>My preferred kind of leadership is hands-on. Clarify the outcome, make room for honest debate, give people real ownership and help remove the uncertainty that prevents good work. I want engineers to understand why a decision was made, not simply receive it as an instruction.</p>
+      </div>
+    </section>
+
+    <!-- Education -->
+    <section class="mt-14">
+      <h2 class="text-lg font-bold text-black">Education</h2>
+      <p class="mt-3 font-medium text-black">Bachelor of Science in Computer Information Systems</p>
+      <p class="text-sm text-gray-700">University of Nairobi · 2012–2016</p>
+    </section>
+
+    <!-- Closing -->
+    <section class="mt-14 border-t border-gray-200 pt-8">
+      <h2 class="text-lg font-bold text-black">Still curious.</h2>
+      <p class="mt-3 text-gray-700">I'm currently learning more about model serving, inference performance and reliable agent systems. If you're working on similar problems—or have a good systems paper I should read—I'd be glad to hear from you.</p>
+      <div class="mt-4 flex gap-4">
+        <a href="/writing/" class="text-black underline hover:no-underline">Read my writing</a>
+        <a href={social.email} class="text-black underline hover:no-underline">Send me an email</a>
+      </div>
+    </section>
+  </main>
+</Layout>
