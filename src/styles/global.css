@@ -29,3 +29,44 @@ body {
   background-color: #fdfff4;
   color: #000;
 }
+
+.article-content > * + * {
+  margin-top: 1em;
+}
+
+.article-content h3 {
+  font-weight: 700;
+  color: #000;
+  margin-top: 1.5em;
+}
+
+.article-content strong {
+  font-weight: 700;
+  color: #000;
+}
+
+.article-content em {
+  font-style: italic;
+}
+
+.article-content a {
+  color: #000;
+  text-decoration: underline;
+}
+
+.article-content code {
+  background-color: #f3f4f6;
+  padding: 0.1em 0.3em;
+  border-radius: 0.25em;
+  font-size: 0.9em;
+}
+
+.article-content img {
+  border-radius: 0.375em;
+  border: 1px solid #e5e7eb;
+}
+
+.article-content sub {
+  font-size: 0.75em;
+  color: #6b7280;
+}
