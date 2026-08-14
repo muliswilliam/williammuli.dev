@@ -18,6 +18,24 @@ const icons = {
 
 const projects = [
   {
+    name: "strukchad",
+    tags: "Construction, SaaS, Radi Digital",
+    href: "https://strukchad.com/",
+    media: { type: "image" as const, src: "/projects-wm/strukchad.png", alt: "Strukchad construction management platform" },
+    description:
+      "A construction project management platform for contractors and real estate teams: BOQs, site teams, approvals, budgets, procurement, property, sales and collections in one system, with a web app for the office and a mobile app for the field. Built at Radi Digital, where I'm CTO.",
+    links: [{ label: "live", href: "https://strukchad.com/" }],
+  },
+  {
+    name: "tija eprocurement",
+    tags: "Procurement, SaaS, Radi Digital",
+    href: "https://eprocurement.tija360.com/",
+    media: { type: "image" as const, src: "/projects-wm/tija-eprocurement.png", alt: "tija eProcurement platform" },
+    description:
+      "A procure-to-pay platform covering requisition-to-payment automation, approvals, budgets, audit trails and supplier management, with a built-in AI agent that flags duplicate POs and suggests inventory optimisations. Also built at Radi Digital.",
+    links: [{ label: "live", href: "https://eprocurement.tija360.com/" }],
+  },
+  {
     name: "payroll at enterprise scale",
     tags: "TypeScript, Node.js, Payroll",
     description:
@@ -80,8 +98,8 @@ const projects = [
 ---
 
 <Layout
-  title="William Muli - Senior Software Engineer & Team Lead"
-  description="Portfolio | William Muli - Senior Software Engineer & Team Lead"
+  title="William Muli - Senior Software Engineer"
+  description="Portfolio | William Muli - Senior Software Engineer"
 >
   <div class="relative min-h-screen overflow-hidden">
     <AsciiBackground />
@@ -113,7 +131,7 @@ const projects = [
           <div>
             <span class="font-bold text-black">today</span>
             <div class="mt-2.5">
-              I'm a senior software engineer and team lead at{" "}
+              I'm a senior software engineer at{" "}
               <a
                 href="https://www.deel.com/"
                 target="_blank"
@@ -123,7 +141,16 @@ const projects = [
               </a>, building payroll infrastructure and AI-powered workflows.
             </div>
             <div class="mt-2.5">
-              a lot of my time goes into the parts users rarely see: system boundaries, observability, and making sure a retry doesn't create a second problem.
+              i'm also CTO at{" "}
+              <a
+                href="https://radidigital.com/"
+                target="_blank"
+                class="inline-flex items-center rounded border border-neutral-200 bg-black p-1 text-sm leading-4 text-neutral-100 no-underline"
+              >
+                <img alt="Radi Digital logo" width="16" height="16" class="mr-1 rounded" src="/logos-wm/radidigital.png" />Radi Digital
+              </a>, where we build AI agents and SaaS products — including{" "}
+              <a href="https://strukchad.com/" target="_blank" class="text-black underline hover:no-underline">Strukchad</a> for construction teams and{" "}
+              <a href="https://eprocurement.tija360.com/" target="_blank" class="text-black underline hover:no-underline">tija eProcurement</a> for procure-to-pay.
             </div>
             <div class="mt-2.5">
               i also{" "}
