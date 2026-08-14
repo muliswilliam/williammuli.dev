@@ -1,0 +1,4 @@
+# Local Cloudflare Workers dev vars (used by `wrangler dev` / `astro dev`).
+# Copy this file to `.dev.vars` and fill in your key.
+# Get a key from https://console.anthropic.com/
+ANTHROPIC_API_KEY=

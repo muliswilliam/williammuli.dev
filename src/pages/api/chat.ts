@@ -3,6 +3,7 @@ export const prerender = false;
 import type { APIRoute } from "astro";
 import { streamText } from "ai";
 import { createAnthropic } from "@ai-sdk/anthropic";
+import { env } from "cloudflare:workers";
 import { cvContext } from "../../data/cv-context";
 import { checkRateLimit } from "../../lib/rate-limit";
 
@@ -11,14 +12,17 @@ const MAX_MESSAGE_CHARS = 800;
 const MAX_HISTORY_TURNS = 12;
 const MAX_TOTAL_CHARS = 6000;
 
-function getClientIp(request: Request, clientAddress: string): string {
+function getClientIp(request: Request, clientAddress?: string): string {
+  if (clientAddress) return clientAddress;
   const forwarded = request.headers.get("x-forwarded-for");
   if (forwarded) return forwarded.split(",")[0].trim();
-  return clientAddress || "unknown";
+  return "unknown";
 }
 
 export const POST: APIRoute = async ({ request, clientAddress }) => {
-  const apiKey = import.meta.env.ANTHROPIC_API_KEY;
+  // On Cloudflare Workers, runtime secrets come from the `cloudflare:workers`
+  // module, not import.meta.env (which only has build-time values).
+  const apiKey = env.ANTHROPIC_API_KEY ?? import.meta.env.ANTHROPIC_API_KEY;
 
   if (!apiKey) {
     return new Response("The assistant isn't configured yet — no API key set on the server.", {
