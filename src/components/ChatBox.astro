@@ -3,7 +3,7 @@ const suggestions = [
   "Can you help me with my project?",
   "Tell me about your work.",
   "What can we start with?",
-  "Tell me about my experience.",
+  "Tell me about your experience.",
   "What programming languages do you know?",
 ];
 ---
@@ -11,9 +11,22 @@ const suggestions = [
 <div class="pointer-events-none fixed -inset-[2.5px] z-50">
   <div class="pointer-events-auto absolute bottom-8 left-1/2 z-10 flex -translate-x-1/2 flex-col items-center">
     <div
-      id="chat-messages"
-      class="mb-2 hidden max-h-[50vh] w-[min(90vw,450px)] space-y-2 overflow-y-auto rounded-xl border border-gray-200 bg-white/90 p-3 text-sm shadow-xl backdrop-blur-md"
-    ></div>
+      id="chat-panel"
+      class="mb-2 hidden w-[min(90vw,450px)] flex-col overflow-hidden rounded-xl border border-gray-200 bg-white/90 shadow-xl backdrop-blur-md"
+    >
+      <div class="flex items-center justify-between border-b border-gray-200 px-3 py-1.5">
+        <span class="text-[10px] uppercase tracking-wide text-gray-400">chat</span>
+        <button
+          type="button"
+          id="chat-close"
+          aria-label="Close conversation"
+          class="flex h-5 w-5 items-center justify-center rounded text-gray-400 hover:bg-gray-100 hover:text-black"
+        >
+          ✕
+        </button>
+      </div>
+      <div id="chat-messages" class="max-h-[45vh] space-y-2 overflow-y-auto p-3 text-sm"></div>
+    </div>
     <div class="chat-suggestions mb-2 hidden w-[min(90vw,450px)] flex-wrap justify-center gap-1.5">
       {
         suggestions.map((s) => (
@@ -33,6 +46,7 @@ const suggestions = [
             <textarea
               id="chat-input"
               rows="1"
+              maxlength="800"
               placeholder="Ask about me, work or send a message!"
               class="relative min-h-[20px] flex-1 resize-none overflow-hidden bg-transparent text-sm leading-5 text-black placeholder:text-sm focus:outline-none md:min-h-[40px] md:text-base"
             ></textarea>
@@ -58,14 +72,15 @@ const suggestions = [
 <script>
   type ChatMessage = { role: "user" | "assistant"; content: string };
 
+  const panelEl = document.getElementById("chat-panel") as HTMLElement | null;
   const messagesEl = document.getElementById("chat-messages") as HTMLElement | null;
+  const closeButton = document.getElementById("chat-close") as HTMLButtonElement | null;
   const suggestionsEl = document.querySelector<HTMLElement>(".chat-suggestions");
   const chatForm = document.getElementById("chat-form") as HTMLFormElement | null;
   const chatInput = document.getElementById("chat-input") as HTMLTextAreaElement | null;
   const sendButton = document.getElementById("chat-send") as HTMLButtonElement | null;
 
   const history: ChatMessage[] = [];
-  let started = false;
   let sending = false;
 
   function renderBubble(role: "user" | "assistant", text: string) {
@@ -80,11 +95,24 @@ const suggestions = [
     return bubble;
   }
 
-  function showConversation() {
-    if (started) return;
-    started = true;
-    messagesEl?.classList.remove("hidden");
-    messagesEl?.classList.add("flex", "flex-col");
+  function openPanel() {
+    panelEl?.classList.remove("hidden");
+    panelEl?.classList.add("flex");
+  }
+
+  function closePanel() {
+    panelEl?.classList.add("hidden");
+    panelEl?.classList.remove("flex");
+    suggestionsEl?.classList.add("hidden");
+    suggestionsEl?.classList.remove("flex");
+  }
+
+  function showSuggestions() {
+    suggestionsEl?.classList.remove("hidden");
+    suggestionsEl?.classList.add("flex");
+  }
+
+  function hideSuggestions() {
     suggestionsEl?.classList.add("hidden");
     suggestionsEl?.classList.remove("flex");
   }
@@ -94,7 +122,8 @@ const suggestions = [
     sending = true;
     if (sendButton) sendButton.disabled = true;
 
-    showConversation();
+    openPanel();
+    hideSuggestions();
     renderBubble("user", text);
     history.push({ role: "user", content: text });
 
@@ -130,18 +159,20 @@ const suggestions = [
     history.push({ role: "assistant", content: received || assistantBubble.textContent || "" });
     sending = false;
     if (sendButton) sendButton.disabled = false;
-    suggestionsEl?.classList.remove("hidden");
-    suggestionsEl?.classList.add("flex");
+    showSuggestions();
     chatInput?.focus();
   }
 
+  closeButton?.addEventListener("click", () => {
+    closePanel();
+    chatInput?.blur();
+  });
+
   chatInput?.addEventListener("focus", () => {
-    suggestionsEl?.classList.remove("hidden");
-    suggestionsEl?.classList.add("flex");
+    showSuggestions();
   });
   chatInput?.addEventListener("blur", () => {
-    suggestionsEl?.classList.add("hidden");
-    suggestionsEl?.classList.remove("flex");
+    hideSuggestions();
   });
 
   document.querySelectorAll<HTMLButtonElement>(".chat-suggestion").forEach((btn) => {
