@@ -1,0 +1,384 @@
+---
+import Layout from "../layouts/Layout.astro";
+import AsciiBackground from "../components/AsciiBackground.astro";
+import HoverInfo from "../components/HoverInfo.astro";
+import ProjectRow from "../components/ProjectRow.astro";
+import ChatBox from "../components/ChatBox.astro";
+
+const icons = {
+  github:
+    '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 256 256"><path d="M208.31,75.68A59.78,59.78,0,0,0,202.93,28,8,8,0,0,0,196,24a59.75,59.75,0,0,0-48,24H124A59.75,59.75,0,0,0,76,24a8,8,0,0,0-6.93,4,59.78,59.78,0,0,0-5.38,47.68A58.14,58.14,0,0,0,56,104v8a56.06,56.06,0,0,0,48.44,55.47A39.8,39.8,0,0,0,96,192v8H72a24,24,0,0,1-24-24A40,40,0,0,0,8,136a8,8,0,0,0,0,16,24,24,0,0,1,24,24,40,40,0,0,0,40,40H96v16a8,8,0,0,0,16,0V192a24,24,0,0,1,48,0v40a8,8,0,0,0,16,0V192a39.8,39.8,0,0,0-8.44-24.53A56.06,56.06,0,0,0,216,112v-8A58.14,58.14,0,0,0,208.31,75.68ZM200,112a40,40,0,0,1-40,40H112a40,40,0,0,1-40-40v-8a41.74,41.74,0,0,1,6.9-22.48A8,8,0,0,0,80,73.83a43.81,43.81,0,0,1,.79-33.58,43.88,43.88,0,0,1,32.32,20.06A8,8,0,0,0,119.82,64h32.35a8,8,0,0,0,6.74-3.69,43.87,43.87,0,0,1,32.32-20.06A43.81,43.81,0,0,1,192,73.83a8.09,8.09,0,0,0,1,7.65A41.72,41.72,0,0,1,200,104Z"></path></svg>',
+  twitter:
+    '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 256 256"><path d="M214.75,211.71l-62.6-98.38,61.77-67.95a8,8,0,0,0-11.84-10.76L143.24,99.34,102.75,35.71A8,8,0,0,0,96,32H48a8,8,0,0,0-6.75,12.3l62.6,98.37-61.77,68a8,8,0,1,0,11.84,10.76l58.84-64.72,40.49,63.63A8,8,0,0,0,160,224h48a8,8,0,0,0,6.75-12.29ZM164.39,208,62.57,48h29L193.43,208Z"></path></svg>',
+  linkedin:
+    '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 256 256"><path d="M216,24H40A16,16,0,0,0,24,40V216a16,16,0,0,0,16,16H216a16,16,0,0,0,16-16V40A16,16,0,0,0,216,24Zm0,192H40V40H216V216ZM96,112v64a8,8,0,0,1-16,0V112a8,8,0,0,1,16,0Zm88,28v36a8,8,0,0,1-16,0V140a20,20,0,0,0-40,0v36a8,8,0,0,1-16,0V112a8,8,0,0,1,15.79-1.78A36,36,0,0,1,184,140ZM100,84A12,12,0,1,1,88,72,12,12,0,0,1,100,84Z"></path></svg>',
+  email:
+    '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 256 256"><path d="M224,48H32a8,8,0,0,0-8,8V192a16,16,0,0,0,16,16H216a16,16,0,0,0,16-16V56A8,8,0,0,0,224,48Zm-96,85.15L52.57,64H203.43ZM98.71,128,40,181.81V74.19Zm11.84,10.85,12,11.05a8,8,0,0,0,10.82,0l12-11.05,58,53.15H52.57ZM157.29,128,216,74.18V181.82Z"></path></svg>',
+  pplx:
+    '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 256 256" class="animate-pulse"><path d="M224,48H32A16,16,0,0,0,16,64V192a16,16,0,0,0,16,16H224a16,16,0,0,0,16-16V64A16,16,0,0,0,224,48ZM80,192l12-16h72l12,16Zm144,0H196l-21.6-28.8A8,8,0,0,0,168,160H88a8,8,0,0,0-6.4,3.2L60,192H32V64H224V192ZM176,80H80a32,32,0,0,0,0,64h96a32,32,0,0,0,0-64ZM148.3,96a31.92,31.92,0,0,0,0,32H107.7a31.92,31.92,0,0,0,0-32ZM64,112a16,16,0,1,1,16,16A16,16,0,0,1,64,112Zm112,16a16,16,0,1,1,16-16A16,16,0,0,1,176,128Z"></path></svg>',
+};
+
+const projects = [
+  {
+    name: "fanout",
+    tags: "Ed-Tech, AI/ML, System Design",
+    href: "https://fanout.sh",
+    media: { type: "image" as const, src: "https://fanout.sh/og-everything-google-l7-mapped.png", alt: "Fanout technical learning platform" },
+    description:
+      "Fanout is the ultimate learning archive for junior developers growing into senior engineers covering AI research, system design, ML, inference, daily research papers, community, and more. Check it out.",
+    links: [{ label: "live", href: "https://fanout.sh" }],
+  },
+  {
+    name: "cursor learn",
+    tags: "IDE, Agents, Desktop",
+    href: "https://trycursor.ai",
+    media: { type: "image" as const, src: "/projects/cursor-learn.png", alt: "Cursor Learn Demo" },
+    description:
+      "Cursor Learn is a tool that extracts programming concepts, patterns, and principles from your Cursor history. Every AI-generated component, database schema, and API design contains lessons—we help you actually learn from the code you're shipping. manage your todos, notes and snippets along the way.",
+    links: [
+      { label: "live", href: "https://trycursor.ai" },
+      { label: "code", href: "https://github.com/suraj-xd/cursor-learn" },
+    ],
+  },
+  {
+    name: "term-v0",
+    tags: "CLI, Coding Agent, AI Toolkit",
+    href: "https://term-v0.app/",
+    media: {
+      type: "video" as const,
+      src: "https://video.twimg.com/amplify_video/1963868566773747714/vid/avc1/1080x820/mZPgMB3tGZaQyfBZ.mp4?tag=21",
+    },
+    description:
+      "A CLI application that builds terminal apps with plain English. Similar to Vercel's v0 platform but for terminal applications. Create powerful command-line tools by simply describing what you want.",
+    links: [
+      { label: "live", href: "https://term-v0.app/" },
+      { label: "code", href: "https://www.npmjs.com/package/term-v0" },
+      { label: "demo", href: "https://x.com/notsurajgaud/status/1959519609876279644" },
+    ],
+  },
+  {
+    name: "inducedrip",
+    tags: "3D, AI, Web3",
+    href: "https://inducedrip.surajgaud.com",
+    media: {
+      type: "video" as const,
+      src: "https://video.twimg.com/amplify_video/1940053499074457600/vid/avc1/738x720/9Z-zbDGk2LIdn-Ut.mp4?tag=14",
+    },
+    description:
+      "A cutting-edge 3D AI-powered platform combining web3 technologies for immersive digital experiences. Built with modern frameworks and blockchain integration.",
+    links: [
+      { label: "live", href: "https://inducedrip.surajgaud.com" },
+      { label: "code", href: "https://github.com/suraj-xd/inducedrip" },
+      { label: "demo", href: "https://x.com/notsurajgaud/status/1937384866254893250" },
+    ],
+  },
+  {
+    name: "ui library",
+    tags: "UI",
+    href: "https://ui.surajgaud.com",
+    media: { type: "image" as const, src: "/projects/ui-library.png", alt: "UI Library Components" },
+    description:
+      "A comprehensive UI component library with modern design patterns and reusable components that i use in my projects. Built for developers who want clean, accessible, and performant interfaces.",
+    links: [
+      { label: "live", href: "https://ui.surajgaud.com" },
+      { label: "code", href: "https://github.com/suraj-xd/XD-UI-Library" },
+      { label: "demo", href: "https://21st.dev/suraj-xd" },
+    ],
+  },
+  {
+    name: "hritu.art",
+    tags: "PWA, UI",
+    href: "https://designerpwa.surajgaud.com",
+    media: { type: "image" as const, src: "/projects/hritu-art.png", alt: "Hritu Art Portfolio" },
+    description:
+      "A Progressive Web App showcasing designer portfolio with beautiful UI/UX design. Features offline functionality and responsive design for optimal viewing across devices with a focus on performance and accessibility.",
+    links: [
+      { label: "live", href: "https://designerpwa.surajgaud.com" },
+      { label: "code", href: "https://github.com/suraj-xd/design-portfolio" },
+    ],
+  },
+  {
+    name: "algosearch",
+    tags: "ML, Search Engine",
+    href: "https://algosearchbeta.netlify.app/",
+    media: { type: "image" as const, src: "/projects/algosearch.gif", alt: "AlgoSearch ML Platform" },
+    description:
+      "AlgoSearch is a search engine for algorithmic problems built from scratch. It uses web scraping to aggregate a diverse dataset, applies TF-IDF for intelligent keyword ranking, and serves results via a custom REST API. The backend processes ML-powered queries.",
+    links: [
+      { label: "live", href: "https://algosearchbeta.netlify.app/" },
+      { label: "code", href: "https://github.com/suraj-xd/AlgoSearch" },
+      {
+        label: "demo",
+        href: "https://www.linkedin.com/posts/gaudsuraj_algozenith-hackathon-algosearch-activity-7075688064135696385-LXhW",
+      },
+    ],
+  },
+  {
+    name: "coding75",
+    tags: "Web, Ed-Tech",
+    href: "https://coding75.com/",
+    media: { type: "image" as const, src: "/projects/coding75.png", alt: "Coding75 Practice Platform" },
+    description:
+      "SaaS platform for learning programming, featuring curated coding problems and detailed solutions to help users systematically improve their programming and problem-solving skills.",
+    links: [
+      { label: "live", href: "https://coding75.com/" },
+      { label: "code", href: "https://github.com/suraj-xd/coding75-app" },
+    ],
+  },
+];
+
+const flags = [
+  { emoji: "🇻🇳", label: "Vietnam" },
+  { emoji: "🇹🇭", label: "Thailand" },
+  { emoji: "🇮🇩", label: "Indonesia" },
+  { emoji: "🇺🇸", label: "United States" },
+  { emoji: "🇯🇵", label: "Japan" },
+  { emoji: "🇨🇳", label: "China" },
+  { emoji: "🇬🇧", label: "United Kingdom" },
+  { emoji: "🇫🇷", label: "France" },
+];
+---
+
+<Layout>
+  <div class="relative min-h-screen overflow-hidden">
+    <AsciiBackground />
+
+    <main class="relative z-10 mx-auto mt-5 max-w-3xl p-8 md:p-16">
+      <div class="font-mono text-sm leading-relaxed md:text-base">
+        <div class="space-y-8 pb-10">
+          <!-- Header -->
+          <div>
+            <div class="flex w-full items-center justify-between font-normal text-black">
+              <p>suraj gaud</p>
+              <div class="text-right">
+                <a
+                  href="https://pplx.fm"
+                  target="_blank"
+                  class="flex items-center justify-end gap-1 text-xs text-gray-500"
+                  set:html={`listening to ${icons.pplx} pplx.fm`}
+                />
+                <a href="#" class="text-xs text-gray-500">(ग्वालियर, इंडिया)</a>
+              </div>
+            </div>
+
+            <div class="mt-3 w-fit rounded-md border border-gray-300 px-1 py-0.5 text-[10px] text-gray-500">
+              SYSTEMS, PRODUCT, AI RESEARCH
+            </div>
+
+            <div class="flex h-[20px] items-center gap-1 py-2 pt-4">
+              ships really
+              <span class="group relative inline-block">
+                <span class="block italic underline decoration-neutral-300 underline-offset-2 group-hover:hidden">fast.</span>
+                <img alt="fast" width="120" height="120" class="hidden group-hover:block" src="/racing-car.webp" />
+              </span>
+            </div>
+          </div>
+
+          <!-- Today -->
+          <div>
+            <span class="font-bold text-black">today</span>
+            <div class="mt-2.5">
+              I'm a software engineer and Head of Engineering at{" "}
+              <a
+                href="https://extraordinary.com/"
+                target="_blank"
+                class="inline-flex items-center rounded border border-neutral-200 bg-black p-1 text-sm leading-4 text-neutral-100 no-underline"
+              >
+                <img alt="Induced logo" width="16" height="16" class="mr-1 rounded" src="/logos/extra-logo.png" />Extraordinary
+              </a>, a core element to early startups.
+            </div>
+            <div class="mt-2.5">
+              enjoys{" "}
+              <HoverInfo
+                label="travelling"
+                ariaLabel="View travel destinations"
+                heading="Travel Destinations"
+                description="Passionate about travel and cultural experiences. Places visited and dream destinations include: Vietnam, Thailand, Indonesia, United States, Japan, China, United Kingdom, France"
+                flags={flags}
+              />, robotics, fast cars and also learning 日本語.
+            </div>
+            <div class="mt-2.5">
+              i also{" "}
+              <HoverInfo
+                label="mentor"
+                ariaLabel="View mentorships"
+                heading="Mentorships"
+                description="Providing mentorship and guidance at educational institutions including: LPU, Rungta, ITM"
+                items={[
+                  { label: "LPU", href: "https://www.lpu.in/" },
+                  { label: "Rungta", href: "https://rungta.ac.in/" },
+                  { label: "ITM", href: "https://www.itmuniversity.ac.in/" },
+                ]}
+              />,{" "}
+              <HoverInfo
+                label="judge"
+                ariaLabel="View hackathons where I judge"
+                heading="Judge"
+                description="Serving as a judge at hackathons including: HackMit, MumbaiHacks, CardanoCodex"
+                items={[
+                  { label: "HackMit", href: "https://hackmit.org/" },
+                  { label: "MumbaiHacks", href: "https://mumbaihacks.com/" },
+                  { label: "CardanoCodex", href: "https://www.indiacodex.com/" },
+                ]}
+              /> and run a small team of highly skilled, creative, and experienced{" "}
+              <span class="cursor-pointer font-medium underline decoration-neutral-300 decoration-wavy underline-offset-2">designers</span>.
+            </div>
+          </div>
+
+          <!-- Past -->
+          <div>
+            <p class="font-bold text-black">past</p>
+            <div class="mt-2.5 space-y-1.5">
+              <div class="flex flex-wrap items-center gap-1">
+                <a href="https://induced.ai" target="_blank" class="inline-flex items-center gap-1 text-black underline hover:no-underline">
+                  <img alt="induced.ai" width="16" height="16" class="rounded border border-gray-200" src="/induced.svg" />induced.ai,
+                </a>
+                <span class="text-gray-700">founding engineer</span>
+              </div>
+              <div class="flex flex-wrap items-center gap-1">
+                <a href="https://nucast.io" target="_blank" class="inline-flex items-center gap-1 text-black underline hover:no-underline">
+                  <img alt="nucast" width="16" height="16" class="rounded border border-gray-200" src="/nucast.svg" />nucast,
+                </a>
+                <span class="text-gray-700">web3 developer</span>
+              </div>
+              <div class="flex flex-wrap items-center gap-1">
+                <a href="#" class="text-black underline hover:no-underline">coding75,</a>
+                <span class="text-gray-700">co-founder / tech-lead</span>
+              </div>
+              <div class="flex flex-wrap items-center gap-1">
+                <a href="#" class="text-black underline hover:no-underline">codingspoon,</a>
+                <span class="text-gray-700">dsa mentor / developer</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Personal projects -->
+          <div>
+            <p class="mb-2 font-bold text-black">personal projects</p>
+            <div id="projects-list">
+              {projects.map((p) => <ProjectRow {...p} />)}
+            </div>
+          </div>
+
+          <!-- Mini apps -->
+          <div class="relative flex items-start gap-3">
+            <img alt="mini apps doodle" width="64" height="91" src="/doodles/gameboy.png" class="flex-shrink-0" />
+            <div>
+              <a href="#" class="group flex items-center gap-1">
+                <span class="font-bold text-black group-hover:underline">mini apps</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 256 256">
+                  <path d="M200,64V168a8,8,0,0,1-16,0V83.31L69.66,197.66a8,8,0,0,1-11.32-11.32L172.69,72H88a8,8,0,0,1,0-16H192A8,8,0,0,1,200,64Z"></path>
+                </svg>
+                <span class="rounded bg-black px-1 py-0.5 text-[10px] font-bold text-white">NEW</span>
+              </a>
+              <p class="mt-1 text-sm text-gray-700">collection of small apps, sharing them here in case they're useful to you too.</p>
+            </div>
+          </div>
+
+          <!-- Recent blogs -->
+          <div>
+            <a href="#" class="mb-2 flex w-full items-center gap-1 font-bold text-black">
+              recent blogs
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 256 256">
+                <path d="M200,64V168a8,8,0,0,1-16,0V83.31L69.66,197.66a8,8,0,0,1-11.32-11.32L172.69,72H88a8,8,0,0,1,0-16H192A8,8,0,0,1,200,64Z"></path>
+              </svg>
+            </a>
+            <ul class="space-y-3">
+              <li>
+                <a href="#" class="block rounded-md border border-gray-200 p-3 transition-colors hover:bg-gray-50">
+                  <div class="flex items-center justify-between">
+                    <h3 class="font-medium text-black">the idea behind cursor learn</h3>
+                    <span class="text-xs text-gray-400">232d ago</span>
+                  </div>
+                  <p class="mt-1 text-sm text-gray-700">why i built a tool to help you actually learn from your vibe coding sessions</p>
+                </a>
+              </li>
+              <li>
+                <a href="#" class="block rounded-md border border-gray-200 p-3 transition-colors hover:bg-gray-50">
+                  <div class="flex items-center justify-between">
+                    <h3 class="font-medium text-black">20 agentic design patterns before 2026</h3>
+                    <span class="text-xs text-gray-400">249d ago</span>
+                  </div>
+                  <p class="mt-1 text-sm text-gray-700">a comprehensive guide to ai agent architectures i've learned building agents</p>
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Freelance -->
+          <div>
+            <p class="mb-2 font-bold text-black">freelance</p>
+            <div class="space-y-1">
+              <a href="#" class="block text-black underline hover:no-underline">snek.com - raffle</a>
+              <a href="#" class="block text-black underline hover:no-underline">general agents - ronika</a>
+            </div>
+          </div>
+
+          <!-- Links -->
+          <div>
+            <p class="mb-2 font-bold text-black">links</p>
+            <div class="flex flex-wrap gap-4">
+              <a href="https://github.com/suraj-xd" target="_blank" class="flex items-center gap-2 text-black underline hover:no-underline" set:html={`${icons.github}github`} />
+              <a href="https://twitter.com/notsurajgaud" target="_blank" class="flex items-center gap-2 text-black underline hover:no-underline" set:html={`${icons.twitter}x/twitter`} />
+              <a href="https://www.linkedin.com/in/gaudsuraj/" target="_blank" class="flex items-center gap-2 text-black underline hover:no-underline" set:html={`${icons.linkedin}linkedin`} />
+              <a href="mailto:surajgaudx@gmail.com" class="flex items-center gap-2 text-black underline hover:no-underline" set:html={`${icons.email}email`} />
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <ChatBox />
+  </div>
+
+  <script>
+    document.querySelectorAll<HTMLButtonElement>(".project-toggle").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const row = btn.closest(".project-row");
+        const panel = row?.querySelector<HTMLElement>(".project-panel");
+        const chevron = btn.querySelector<HTMLElement>(".chevron");
+        const isOpen = row?.classList.contains("is-open");
+
+        if (isOpen) {
+          row?.classList.remove("is-open", "mt-1", "overflow-hidden", "rounded-md", "border", "bg-gray-100/50", "px-3", "py-1");
+          panel?.classList.add("hidden");
+          if (chevron) chevron.style.transform = "rotate(0deg)";
+        } else {
+          row?.classList.add("is-open", "mt-1", "overflow-hidden", "rounded-md", "border", "bg-gray-100/50", "px-3", "py-1");
+          panel?.classList.remove("hidden");
+          if (chevron) chevron.style.transform = "rotate(180deg)";
+        }
+      });
+    });
+
+    const chatForm = document.getElementById("chat-form");
+    const chatInput = document.getElementById("chat-input") as HTMLTextAreaElement | null;
+    const chatSuggestions = document.querySelector<HTMLElement>(".chat-suggestions");
+
+    chatInput?.addEventListener("focus", () => {
+      chatSuggestions?.classList.remove("hidden");
+      chatSuggestions?.classList.add("flex");
+    });
+    chatInput?.addEventListener("blur", () => {
+      chatSuggestions?.classList.add("hidden");
+      chatSuggestions?.classList.remove("flex");
+    });
+
+    document.querySelectorAll<HTMLButtonElement>(".chat-suggestion").forEach((btn) => {
+      btn.addEventListener("mousedown", (e) => e.preventDefault());
+      btn.addEventListener("click", () => {
+        if (chatInput) {
+          chatInput.value = btn.textContent?.trim() ?? "";
+          chatInput.focus();
+        }
+      });
+    });
+
+    chatForm?.addEventListener("submit", (e) => {
+      e.preventDefault();
+      if (chatInput) {
+        chatInput.value = "";
+      }
+    });
+  </script>
+</Layout>

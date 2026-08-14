@@ -1,0 +1,50 @@
+---
+const suggestions = [
+  "What's your work experience?",
+  "What programming languages do you know?",
+  "Tell me about Fanout",
+  "Can you help with my project?",
+];
+---
+
+<div class="pointer-events-none fixed -inset-[2.5px] z-50">
+  <div class="pointer-events-auto absolute bottom-8 left-1/2 z-10 -translate-x-1/2">
+    <div class="chat-suggestions mb-2 hidden w-[min(90vw,450px)] flex-wrap justify-center gap-1.5">
+      {
+        suggestions.map((s) => (
+          <button
+            type="button"
+            class="chat-suggestion rounded-md border border-gray-300 bg-white/70 px-2 py-1 text-[10px] uppercase tracking-wide text-gray-600 backdrop-blur-md transition-colors hover:border-black hover:text-black"
+          >
+            {s}
+          </button>
+        ))
+      }
+    </div>
+    <div class="relative mx-auto w-[min(90vw,450px)] transition-transform duration-200 hover:scale-[1.02]">
+      <form id="chat-form" class="relative">
+        <div class="relative overflow-hidden rounded-xl border border-b-0 border-gray-300 bg-[#ffffff6b] px-4 py-2 shadow-xl backdrop-blur-md transition-all duration-200 hover:shadow-2xl md:py-3">
+          <div class="flex items-end gap-3">
+            <textarea
+              id="chat-input"
+              rows="1"
+              placeholder="Ask about me, work or send a message!"
+              class="relative min-h-[20px] flex-1 resize-none overflow-hidden bg-transparent text-sm leading-5 text-black placeholder:text-sm focus:outline-none md:min-h-[40px] md:text-base"
+            ></textarea>
+            <span class="hidden pb-1 text-xs text-gray-400 md:inline">⌘ K</span>
+            <button
+              type="submit"
+              aria-label="Send prompt to AI Assistant"
+              class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-black text-white transition-opacity disabled:opacity-40"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 256 256">
+                <path d="M223.87,114.52,38.05,29.5a15.68,15.68,0,0,0-19.53,22l30.6,61.6a4,4,0,0,0,3.24,2.19L164.5,128,52.36,140.71a4,4,0,0,0-3.24,2.19l-30.6,61.6a15.68,15.68,0,0,0,19.53,22L223.87,141.48A15.6,15.6,0,0,0,223.87,114.52Z"
+                ></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

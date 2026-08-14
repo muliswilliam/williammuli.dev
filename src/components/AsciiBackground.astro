@@ -1,0 +1,21 @@
+---
+const PHRASE =
+  "Hello World Code ASCII Art Design Programming Developer Engineer Technology Innovation Creativity Algorithm Data Artificial Intelligence";
+
+function toBinary(phrase: string) {
+  return phrase
+    .split("")
+    .map((ch) => ch.charCodeAt(0).toString(2).padStart(8, "0"))
+    .join(" ");
+}
+
+const binaryLine = `${toBinary(PHRASE)}${toBinary(PHRASE)}`;
+const rows = Array.from({ length: 11 }, () => binaryLine);
+---
+
+<div
+  aria-hidden="true"
+  class="pointer-events-none fixed inset-0 w-full overflow-hidden font-mono text-xs leading-none text-gray-500 opacity-5"
+>
+  {rows.map((row) => <div class="ascii-background">{row}</div>)}
+</div>
