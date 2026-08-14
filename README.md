@@ -1,43 +1,49 @@
-# Astro Starter Kit: Minimal
+# williammuli.dev
+
+Personal site for William Muli — built with [Astro](https://astro.build) and [Tailwind CSS](https://tailwindcss.com), deployed on [Cloudflare Workers](https://workers.cloudflare.com).
+
+## Stack
+
+- **Astro** (server output) with static prerendering on every page except the chat API
+- **Tailwind CSS v4**
+- **Vercel AI SDK** (`ai` + `@ai-sdk/anthropic`) powering the "ask me anything" chat widget, grounded in real CV/experience data (`src/data/cv-context.ts`)
+- **Cloudflare Workers** via `@astrojs/cloudflare`, with a simple in-memory rate limiter on `/api/chat`
+
+## Local development
 
 ```sh
-npm create astro@latest -- --template minimal
+npm install
+cp .dev.vars.example .dev.vars   # add your own ANTHROPIC_API_KEY
+npm run dev
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+To test against the real Workers runtime locally (recommended before deploying):
 
-## 🚀 Project Structure
+```sh
+npm run build
+npx wrangler dev
+```
 
-Inside of your Astro project, you'll see the following folders and files:
+## Deployment
+
+Deploys to Cloudflare Workers. Either push to `main` (if the repo is connected to a Cloudflare Workers Builds project) or deploy manually:
+
+```sh
+npx wrangler login
+npx wrangler secret put ANTHROPIC_API_KEY
+npx wrangler deploy
+```
+
+## Project structure
 
 ```text
-/
-├── public/
-├── src/
-│   └── pages/
-│       └── index.astro
-└── package.json
+src/
+├── components/     # Nav, Footer, ChatBox, ProjectRow, HoverInfo, AsciiBackground
+├── data/           # site copy, work history, CV context for the chat assistant
+├── lib/            # rate limiting
+├── layouts/        # shared page shell
+└── pages/
+    ├── index.astro
+    ├── writing/    # long-form posts
+    └── api/chat.ts # streaming AI assistant endpoint
 ```
-
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
-
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
-
-Any static assets, like images, can be placed in the `public/` directory.
-
-## 🧞 Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
