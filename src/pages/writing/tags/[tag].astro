@@ -1,0 +1,43 @@
+---
+export const prerender = true;
+
+import { getCollection } from "astro:content";
+import Layout from "../../../layouts/Layout.astro";
+import ArticleCard from "../../../components/ArticleCard.astro";
+import { formatArticleDate } from "../../../lib/format-date";
+
+export async function getStaticPaths() {
+  const posts = await getCollection("writing");
+  const tags = [...new Set(posts.flatMap((post) => post.data.tags))];
+
+  return tags.map((tag) => {
+    const taggedPosts = posts
+      .filter((post) => post.data.tags.includes(tag))
+      .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+    return { params: { tag }, props: { tag, posts: taggedPosts } };
+  });
+}
+
+const { tag, posts } = Astro.props;
+---
+
+<Layout title={`tagged: ${tag} - William Muli`} description={`Articles tagged "${tag}".`}>
+  <div class="min-h-screen bg-[#fdfff4]">
+    <main class="mx-auto max-w-3xl px-8 py-12 font-mono text-sm leading-relaxed md:px-16">
+      <a href="/" class="text-xs text-gray-500 underline hover:text-black">← back</a>
+
+      <h1 class="mt-6 text-xl font-bold text-black">tagged: {tag}</h1>
+      <ul class="mt-6 space-y-3">
+        {posts.map((post) => (
+          <ArticleCard
+            href={`/writing/${post.id}/`}
+            title={post.data.title}
+            date={formatArticleDate(post.data.date)}
+            description={post.data.description}
+          />
+        ))}
+      </ul>
+    </main>
+  </div>
+</Layout>

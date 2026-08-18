@@ -31,7 +31,12 @@ const pageTitle = title.charAt(0).toUpperCase() + title.slice(1);
         {tags.length > 0 && (
           <div class="mt-2 flex flex-wrap gap-1">
             {tags.map((tag) => (
-              <span class="w-fit rounded-md border border-gray-300 px-1 py-0.5 text-[10px] text-gray-500">{tag}</span>
+              <a
+                href={`/writing/tags/${tag}/`}
+                class="w-fit rounded-md border border-gray-300 px-1 py-0.5 text-[10px] text-gray-500 transition-colors hover:border-gray-400 hover:text-black"
+              >
+                {tag}
+              </a>
             ))}
           </div>
         )}
