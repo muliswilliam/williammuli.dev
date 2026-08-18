@@ -3,6 +3,7 @@ title: how a browser loads a page
 description: What happens between typing a URL and the page showing up on screen.
 date: 2019-08-01
 heroImage: /writing/browser-hero.jpg
+tags: [browsers, rendering, networking]
 ---
 
 When a user enters a URL(Uniform Resource Locator)/web address in a browser's address bar and presses enter, the browser takes on the responsibility of presenting the web resource to the user by requesting it from the server and displaying the response to the user on the browser window. The response can be HTML, image, PDF or multimedia content such as video or audio.

@@ -14,7 +14,7 @@ export async function getStaticPaths() {
 }
 
 const { post } = Astro.props;
-const { title, description, date, heroImage, heroAlt } = post.data;
+const { title, description, date, heroImage, heroAlt, tags } = post.data;
 const { Content } = await render(post);
 const pageTitle = title.charAt(0).toUpperCase() + title.slice(1);
 ---
@@ -27,6 +27,14 @@ const pageTitle = title.charAt(0).toUpperCase() + title.slice(1);
       <article class="mt-6">
         <h1 class="text-xl font-bold text-black">{title}</h1>
         <p class="mt-1 text-xs text-gray-400">{formatArticleDate(date)}</p>
+
+        {tags.length > 0 && (
+          <div class="mt-2 flex flex-wrap gap-1">
+            {tags.map((tag) => (
+              <span class="w-fit rounded-md border border-gray-300 px-1 py-0.5 text-[10px] text-gray-500">{tag}</span>
+            ))}
+          </div>
+        )}
 
         <img src={heroImage} alt={heroAlt} class="mt-6 w-full rounded-md border border-gray-200 object-cover" />
 

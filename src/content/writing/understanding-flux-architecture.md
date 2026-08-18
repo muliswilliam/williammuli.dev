@@ -3,6 +3,7 @@ title: understanding flux architecture
 description: Unidirectional data flow, and why it makes application state easier to reason about.
 date: 2019-07-01
 heroImage: /writing/flux-hero.jpg
+tags: [flux, architecture, state-management]
 ---
 
 Flux is an architectural pattern for building data layer for Javascript applications. Flux focuses on creating an explicit and understandable data flows i.e unidirectional data flow which increases predictability of application code.
