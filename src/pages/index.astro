@@ -7,6 +7,7 @@ import AsciiBackground from "../components/AsciiBackground.astro";
 import HoverInfo from "../components/HoverInfo.astro";
 import ProjectRow from "../components/ProjectRow.astro";
 import ChatBox from "../components/ChatBox.astro";
+import ArticleCard from "../components/ArticleCard.astro";
 import { formatArticleDate } from "../lib/format-date";
 
 const recentWriting = (await getCollection("writing"))
@@ -196,15 +197,12 @@ const projects = [
             <p class="mb-2 font-bold text-black">recent writing</p>
             <ul class="space-y-3">
               {recentWriting.map((post) => (
-                <li>
-                  <a href={`/writing/${post.id}/`} class="block rounded-md border border-gray-200 p-3 transition-colors hover:bg-gray-50">
-                    <div class="flex items-center justify-between">
-                      <h3 class="font-medium text-black">{post.data.title}</h3>
-                      <span class="text-xs text-gray-400">{formatArticleDate(post.data.date)}</span>
-                    </div>
-                    <p class="mt-1 text-sm text-gray-700">{post.data.description}</p>
-                  </a>
-                </li>
+                <ArticleCard
+                  href={`/writing/${post.id}/`}
+                  title={post.data.title}
+                  date={formatArticleDate(post.data.date)}
+                  description={post.data.description}
+                />
               ))}
             </ul>
           </div>
