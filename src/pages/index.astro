@@ -1,11 +1,17 @@
 ---
 export const prerender = true;
 
+import { getCollection } from "astro:content";
 import Layout from "../layouts/Layout.astro";
 import AsciiBackground from "../components/AsciiBackground.astro";
 import HoverInfo from "../components/HoverInfo.astro";
 import ProjectRow from "../components/ProjectRow.astro";
 import ChatBox from "../components/ChatBox.astro";
+import { formatArticleDate } from "../lib/format-date";
+
+const recentWriting = (await getCollection("writing"))
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+  .slice(0, 2);
 
 const icons = {
   github:
@@ -189,24 +195,17 @@ const projects = [
           <div>
             <p class="mb-2 font-bold text-black">recent writing</p>
             <ul class="space-y-3">
-              <li>
-                <a href="/writing/how-a-browser-loads-a-page/" class="block rounded-md border border-gray-200 p-3 transition-colors hover:bg-gray-50">
-                  <div class="flex items-center justify-between">
-                    <h3 class="font-medium text-black">how a browser loads a page</h3>
-                    <span class="text-xs text-gray-400">aug 2019</span>
-                  </div>
-                  <p class="mt-1 text-sm text-gray-700">what happens between typing a URL and the page showing up on screen</p>
-                </a>
-              </li>
-              <li>
-                <a href="/writing/understanding-flux-architecture/" class="block rounded-md border border-gray-200 p-3 transition-colors hover:bg-gray-50">
-                  <div class="flex items-center justify-between">
-                    <h3 class="font-medium text-black">understanding flux architecture</h3>
-                    <span class="text-xs text-gray-400">jul 2019</span>
-                  </div>
-                  <p class="mt-1 text-sm text-gray-700">unidirectional data flow, and why it makes application state easier to reason about</p>
-                </a>
-              </li>
+              {recentWriting.map((post) => (
+                <li>
+                  <a href={`/writing/${post.id}/`} class="block rounded-md border border-gray-200 p-3 transition-colors hover:bg-gray-50">
+                    <div class="flex items-center justify-between">
+                      <h3 class="font-medium text-black">{post.data.title}</h3>
+                      <span class="text-xs text-gray-400">{formatArticleDate(post.data.date)}</span>
+                    </div>
+                    <p class="mt-1 text-sm text-gray-700">{post.data.description}</p>
+                  </a>
+                </li>
+              ))}
             </ul>
           </div>
 

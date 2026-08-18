@@ -1,0 +1,39 @@
+---
+export const prerender = true;
+
+import { getCollection, render } from "astro:content";
+import Layout from "../../layouts/Layout.astro";
+import { formatArticleDate } from "../../lib/format-date";
+
+export async function getStaticPaths() {
+  const posts = await getCollection("writing");
+  return posts.map((post) => ({
+    params: { slug: post.id },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { title, description, date, heroImage, heroAlt } = post.data;
+const { Content } = await render(post);
+const pageTitle = title.charAt(0).toUpperCase() + title.slice(1);
+---
+
+<Layout title={`${pageTitle} - William Muli`} description={description}>
+  <div class="min-h-screen bg-[#fdfff4]">
+    <main class="mx-auto max-w-3xl px-8 py-12 font-mono text-sm leading-relaxed md:px-16">
+      <a href="/" class="text-xs text-gray-500 underline hover:text-black">← back</a>
+
+      <article class="mt-6">
+        <h1 class="text-xl font-bold text-black">{title}</h1>
+        <p class="mt-1 text-xs text-gray-400">{formatArticleDate(date)}</p>
+
+        <img src={heroImage} alt={heroAlt} class="mt-6 w-full rounded-md border border-gray-200 object-cover" />
+
+        <div class="article-content mt-6 text-gray-800">
+          <Content />
+        </div>
+      </article>
+    </main>
+  </div>
+</Layout>
