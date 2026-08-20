@@ -61,6 +61,31 @@ body {
   font-size: 0.9em;
 }
 
+.article-content pre code {
+  background-color: transparent;
+  padding: 0;
+  border-radius: 0;
+  font-size: 0.9em;
+}
+
+.article-content pre {
+  padding: 1em;
+  border-radius: 0.375em;
+  overflow-x: auto;
+}
+
+.article-content table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.article-content th,
+.article-content td {
+  border: 1px solid #d1d5db;
+  padding: 0.5em 0.75em;
+  text-align: left;
+}
+
 .article-content img {
   border-radius: 0.375em;
   border: 1px solid #e5e7eb;

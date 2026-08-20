@@ -6,9 +6,9 @@ heroImage: /writing/transactions-and-what-postgres-actually-sees-hero.jpg
 tags: [postgresql, transactions, mvcc, database-internals]
 ---
 
-A few years back I spent part of an afternoon staring at a transfer row that had been sitting at status `pending` for days. The transfer was conceptually two writes: take money out of one account, put it into another. The first write had happened. The second one never did. Nothing paged anyone - a deploy had simply landed between two independent SQL statements, and the process that was supposed to run the second one was gone before it got the chance. The money was not gone from the world, but it was gone from the ledger's point of view, sitting unaccounted for until someone went looking for stuck rows.
+A transfer row once sat at status `pending` for days before anyone noticed, and I remember losing part of an afternoon to figuring out why. The transfer itself was just two writes: pull money out of one account, put it into another. The first write had gone through. The second one hadn't. No alert fired for it - a deploy had landed in the gap between two independent SQL statements, and whatever was supposed to run the second one was gone by the time its turn came. The money hadn't vanished from the world, only from the ledger's account of itself, unaccounted for until someone went digging for stuck rows.
 
-I rebuilt that failure on purpose recently, in a small lab against a real Postgres instance, to see the corruption happen with real numbers instead of a story I half remembered. Then I fixed it, and went one level further down, into the mechanism - MVCC - that lets Postgres give you that fix without making every reader queue up behind every writer.
+Later I rebuilt that exact failure against a real Postgres instance, in a small lab, so the corruption would show up as actual numbers instead of a half-remembered anecdote. Fixing it turned out to be the easy part. The more interesting part was going one level further down, into MVCC, the mechanism that lets Postgres hand you that fix without forcing every reader to queue up behind every writer.
 
 The naive version of a transfer debits one account and credits another with two separate statements, no explicit transaction around either one:
 

@@ -70,7 +70,7 @@ That same-row protection has a well-known blind spot, though, and it is the reas
 
 Both transactions committed. Both reads were completely accurate as of the snapshot each one took. Neither transaction touched the row the other wrote to, so the same-row check that produced `40001` above never had anything to fire on. The result is zero staff on call, which the invariant was supposed to prevent, with no error raised anywhere. This is write skew, and it is not a bug in either transaction's logic - each one behaved correctly relative to the snapshot it was handed. The anomaly belongs to the isolation level, not the application code.
 
-Serializable is the level built to catch that. Run the identical hand-scripted interleaving - the same two doctors, the same reads, the same order of commits - and change only the requested isolation level from REPEATABLE READ to SERIALIZABLE:
+Serializable is the level built to catch that. Run the identical hand-scripted interleaving - the same scenario shape, the same reads, the same order of commits - and change only the requested isolation level from REPEATABLE READ to SERIALIZABLE:
 
 ```json
 {"aliceId":"13","bobId":"14","actualIsolationLevel":"serializable"}
