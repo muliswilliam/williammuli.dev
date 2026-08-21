@@ -1,8 +1,7 @@
 ---
-title: "SELECT FOR UPDATE vs Conditional Writes: Two Ways to Solve the Same Race Condition"
+title: "Pessimistic vs Optimistic Concurrency in Postgres"
 description: "A seat reservation race solved with PostgreSQL row locks and conditional updates, using TypeScript and Drizzle ORM."
 date: 2026-08-20
-heroImage: /writing/locks-vs-optimistic-concurrency-hero.jpg
 tags: [postgresql, concurrency, row-locks, optimistic-concurrency]
 ---
 
@@ -82,21 +81,7 @@ For any seat, only one request may complete that transition successfully.
 
 The original code checks the invariant before the update, leaving a window in which Alice and Bob can interleave like this:
 
-```text
-Alice                          Bob
-
-SELECT A12
--> AVAILABLE
-
-                               SELECT A12
-                               -> AVAILABLE
-
-UPDATE A12
--> RESERVED by Alice
-
-                               UPDATE A12
-                               -> RESERVED by Bob
-```
+![Sequence diagram of Alice and Bob both reading seat A12 as available, then both updating it, with Bob's update silently overwriting Alice's reservation](/writing/locks-vs-optimistic-concurrency-race.svg)
 
 Each request acts on a result that was true when it was read. Both queries complete successfully, and the second update overwrites the first reservation.
 
@@ -167,27 +152,7 @@ A locking read outside a transaction is ineffective for this workflow. In autoco
 
 With the lock in place, the race becomes an ordered sequence:
 
-```text
-Alice                          Bob
-
-BEGIN
-SELECT A12 FOR UPDATE
--> AVAILABLE
--> lock acquired
-
-                               BEGIN
-                               SELECT A12 FOR UPDATE
-                               -> waits
-
-UPDATE A12
--> RESERVED by Alice
-COMMIT
--> lock released
-
-                               SELECT returns
-                               -> RESERVED
-                               ROLLBACK
-```
+![Sequence diagram of Alice locking seat A12, Bob blocking on the same lock until Alice commits, then Bob's resumed read returning RESERVED and rolling back](/writing/locks-vs-optimistic-concurrency-wait.svg)
 
 Bob's locking read resumes after Alice commits and returns the new value, so his reservation attempt stops.
 
@@ -249,19 +214,7 @@ if (!reservedSeat) {
 
 The status check and state change execute in one statement. One request updates the row and receives it through `RETURNING`. The other request matches zero rows:
 
-```text
-Alice                          Bob
-
-UPDATE A12
-WHERE status = AVAILABLE
-
-                               UPDATE A12
-                               WHERE status = AVAILABLE
-
--> 1 row returned
-
-                               -> 0 rows returned
-```
+![Sequence diagram of Alice and Bob both sending a conditional UPDATE on seat A12, where only Alice's request matches and returns a row while Bob's returns zero rows](/writing/locks-vs-optimistic-concurrency-conditional.svg)
 
 Zero returned rows indicates that the precondition no longer holds. The application can return an HTTP `409 Conflict`, show that the seat was just taken, or offer another seat.
 

@@ -41,7 +41,9 @@ const pageTitle = title.charAt(0).toUpperCase() + title.slice(1);
           </div>
         )}
 
-        <img src={heroImage} alt={heroAlt} class="mt-6 w-full rounded-md border border-gray-200 object-cover" />
+        {heroImage && (
+          <img src={heroImage} alt={heroAlt} class="mt-6 w-full rounded-md border border-gray-200 object-cover" />
+        )}
 
         <div class="article-content mt-6 text-gray-800">
           <Content />

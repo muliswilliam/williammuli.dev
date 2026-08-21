@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 820" width="960" height="820" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace">
+  <defs>
+    <marker id="arrow2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#000000"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="960" height="820" fill="#fdfff4"/>
+
+  <!-- lifelines -->
+  <line x1="160" y1="94" x2="160" y2="800" stroke="#9CA3AF" stroke-width="1.5" stroke-dasharray="6,6"/>
+  <line x1="800" y1="94" x2="800" y2="800" stroke="#9CA3AF" stroke-width="1.5" stroke-dasharray="6,6"/>
+
+  <!-- central row-state connector (Alice's lock -> commit) -->
+  <line x1="480" y1="180" x2="480" y2="720" stroke="#D1D5DB" stroke-width="2"/>
+
+  <!-- actor headers -->
+  <rect x="50" y="30" width="220" height="64" rx="8" fill="#000000"/>
+  <text x="160" y="62" font-size="22" font-weight="700" fill="#fdfff4" text-anchor="middle" dominant-baseline="middle">Alice</text>
+
+  <rect x="690" y="30" width="220" height="64" rx="8" fill="#fdfff4" stroke="#000000" stroke-width="2.5"/>
+  <text x="800" y="62" font-size="22" font-weight="700" fill="#000000" text-anchor="middle" dominant-baseline="middle">Bob</text>
+
+  <!-- row A: Alice begins and locks the row -->
+  <circle cx="160" cy="180" r="15" fill="#000000"/>
+  <text x="160" y="180" font-size="14" font-weight="700" fill="#fdfff4" text-anchor="middle" dominant-baseline="middle">1</text>
+  <line x1="177" y1="180" x2="354" y2="180" stroke="#000000" stroke-width="2" marker-end="url(#arrow2)"/>
+  <text x="268" y="158" font-size="11" font-weight="600" fill="#000000" text-anchor="middle">BEGIN, SELECT FOR UPDATE</text>
+
+  <rect x="360" y="145" width="240" height="70" rx="8" fill="#000000"/>
+  <text x="480" y="170" font-size="12" font-weight="600" fill="#D1D5DB" text-anchor="middle">Seat A12</text>
+  <text x="480" y="195" font-size="15" font-weight="700" fill="#fdfff4" text-anchor="middle">LOCKED by Alice</text>
+
+  <!-- row B: Bob begins and blocks -->
+  <circle cx="800" cy="340" r="15" fill="#fdfff4" stroke="#000000" stroke-width="2"/>
+  <text x="800" y="340" font-size="14" font-weight="700" fill="#000000" text-anchor="middle" dominant-baseline="middle">2</text>
+  <line x1="783" y1="340" x2="700" y2="340" stroke="#000000" stroke-width="2" marker-end="url(#arrow2)"/>
+  <text x="705" y="300" font-size="11" font-weight="600" fill="#000000" text-anchor="middle">SELECT FOR UPDATE</text>
+  <text x="742" y="360" font-size="12" font-style="italic" fill="#6B7280" text-anchor="middle">blocks...</text>
+
+  <!-- waiting bracket -->
+  <rect x="760" y="310" width="90" height="250" rx="12" fill="none" stroke="#000000" stroke-width="2" stroke-dasharray="5,5"/>
+  <text x="650" y="428" font-size="13" font-weight="700" fill="#000000" text-anchor="middle">BLOCKED</text>
+  <text x="650" y="450" font-size="12" font-style="italic" fill="#6B7280" text-anchor="middle">waiting for the lock</text>
+  <line x1="728" y1="440" x2="756" y2="440" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow2)"/>
+
+  <!-- row C: Alice updates and commits, releasing the lock -->
+  <circle cx="160" cy="560" r="15" fill="#000000"/>
+  <text x="160" y="560" font-size="14" font-weight="700" fill="#fdfff4" text-anchor="middle" dominant-baseline="middle">3</text>
+  <line x1="177" y1="560" x2="354" y2="560" stroke="#000000" stroke-width="2" marker-end="url(#arrow2)"/>
+  <text x="268" y="540" font-size="12" font-weight="600" fill="#000000" text-anchor="middle">UPDATE A12; COMMIT</text>
+
+  <rect x="360" y="525" width="240" height="70" rx="8" fill="#000000"/>
+  <text x="480" y="550" font-size="12" font-weight="600" fill="#D1D5DB" text-anchor="middle">Seat A12</text>
+  <text x="480" y="575" font-size="15" font-weight="700" fill="#fdfff4" text-anchor="middle">RESERVED by Alice</text>
+
+  <text x="480" y="615" font-size="12" font-style="italic" fill="#6B7280" text-anchor="middle">lock released</text>
+
+  <!-- row D: Bob's blocked call resumes -->
+  <circle cx="800" cy="720" r="15" fill="#fdfff4" stroke="#000000" stroke-width="2"/>
+  <text x="800" y="720" font-size="14" font-weight="700" fill="#000000" text-anchor="middle" dominant-baseline="middle">4</text>
+  <line x1="486" y1="720" x2="783" y2="720" stroke="#000000" stroke-width="2" stroke-dasharray="5,5" marker-end="url(#arrow2)"/>
+  <text x="633" y="703" font-size="12" font-weight="600" fill="#000000" text-anchor="middle">SELECT returns</text>
+  <text x="633" y="737" font-size="12" font-style="italic" fill="#6B7280" text-anchor="middle">-&gt; RESERVED</text>
+
+  <rect x="730" y="745" width="140" height="44" rx="8" fill="#fdfff4" stroke="#000000" stroke-width="2.5"/>
+  <text x="800" y="768" font-size="14" font-weight="700" fill="#000000" text-anchor="middle" dominant-baseline="middle">ROLLBACK</text>
+</svg>
