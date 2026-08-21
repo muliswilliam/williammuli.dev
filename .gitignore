@@ -30,3 +30,6 @@ worker-configuration.d.ts
 
 # scratch research material, not part of the site
 reference/
+
+# git worktrees (subagent-driven-development scratch)
+.worktrees/

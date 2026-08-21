@@ -7,7 +7,7 @@ const writing = defineCollection({
     title: z.string(),
     description: z.string(),
     date: z.coerce.date(),
-    heroImage: z.string(),
+    heroImage: z.string().optional(),
     heroAlt: z.string().default("Heading image"),
     tags: z.array(z.string()).default([]),
   }),
