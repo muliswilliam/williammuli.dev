@@ -48,7 +48,7 @@ The code fails because the decision and the write are separate. Both requests ca
 
 The fix must preserve the reservation rule regardless of how concurrent requests are ordered.
 
-## The invariant: one reservation per seat
+## The race condition: two requests reserve one seat
 
 The examples use this `seats` table:
 
@@ -98,7 +98,7 @@ Each request acts on a result that was true when it was read. The second update 
 
 The reservation operation therefore needs concurrency control that allows only one request to complete the state transition.
 
-## Fix 1: lock the row with `SELECT FOR UPDATE`
+## Solution 1: lock the seat row with `SELECT FOR UPDATE`
 
 `SELECT FOR UPDATE` reads a row and acquires a row-level lock for the transaction that intends to change it.
 
@@ -157,7 +157,7 @@ await db.transaction(async (tx) => {
 
 A locking read outside a transaction is ineffective for this workflow. In autocommit mode, the statement ends immediately, so PostgreSQL releases the lock before the later update runs.
 
-### What the second request sees
+### A competing request waits for the row lock
 
 With the lock in place, the race becomes an ordered sequence:
 
@@ -187,7 +187,7 @@ Bob does not make a decision from the old state. His locking read resumes after 
 
 This is pessimistic concurrency control: coordinate before making the change. It fits operations that must read stable state and perform several related database actions, such as validating a balance, inserting a ledger entry, and updating the account.
 
-### Keep the locked section short
+### Keep lock-holding transactions short
 
 The useful shape is:
 
@@ -203,7 +203,7 @@ Do not hold the transaction open while calling a payment provider, sending email
 
 If callers should not wait indefinitely, define a policy. `FOR UPDATE NOWAIT` fails immediately when the row is locked. A bounded `lock_timeout` limits how long the statement may wait. In both cases, the application must translate the database failure into a retry, a conflict response, or a queued operation.
 
-## Fix 2: make the write conditional
+## Solution 2: enforce availability in the `UPDATE`
 
 The seat transition fits in one statement:
 
@@ -261,7 +261,7 @@ Zero rows is not an exceptional database failure. It is the domain result: the p
 
 Checking the result is mandatory. A conditional update whose affected-row count or returned rows are ignored does not tell the caller whether the operation succeeded.
 
-### Status checks and version checks
+### Use version checks to detect intervening updates
 
 The seat update names the exact business condition:
 
@@ -312,7 +312,7 @@ They protect different assumptions. A current version does not prove that a sold
 
 Version checks are useful when time passes between reading and writing, such as editing a form. Holding a database lock during that time would waste a connection and block unrelated work.
 
-## What changes under contention
+## Compare both approaches under contention
 
 The practical difference appears in the losing request:
 
@@ -333,7 +333,7 @@ The difference is ownership at the application level:
 
 Neither approach removes a hot spot. Ten thousand users reserving ten thousand different seats produce little conflict. Ten thousand users reserving one remaining seat produce one winner and many losers. Locking changes how the losers queue. A conditional write changes how they discover the loss.
 
-## Transactions, failures, and retries
+## Transactions, failure handling, and safe retries
 
 A single conditional update is enough only when the complete business operation fits in that statement. A reservation often needs a second write:
 
@@ -391,7 +391,7 @@ Retries also need idempotency. If an attempt can charge a card, publish a messag
 
 When several rows must be locked, acquire them in a consistent order. PostgreSQL can detect and break a deadlock by aborting one transaction, but consistent ordering prevents many deadlocks before they occur.
 
-## How to choose
+## Choose based on the operation and conflict behavior
 
 Start with the invariant, then ask what the losing request should do.
 
@@ -413,7 +413,7 @@ Use a transaction with either approach when several database changes must commit
 
 The two techniques can also coexist. A workflow may lock one aggregate while using a unique constraint or conditional update to protect another invariant. The goal is not to standardize on one concurrency primitive. The goal is to place each invariant where PostgreSQL can enforce it.
 
-## Practical takeaways
+## Implementation checklist
 
 1. Write the invariant before choosing the mechanism.
 2. Do not separate a business precondition from its write unless a transaction protects the gap.
