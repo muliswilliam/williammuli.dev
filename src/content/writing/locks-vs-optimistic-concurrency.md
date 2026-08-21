@@ -42,7 +42,11 @@ await db
   .where(eq(seats.id, seatId));
 ```
 
-Read the seat. Check that it is available. Reserve it.
+Each request follows three steps:
+
+1. Read the seat.
+2. Check that it is available.
+3. Reserve it.
 
 The code fails because the decision and the write are separate. Both requests can read `available`, both can pass the check, and both can report success. The second update quietly replaces the first customer's `reservedBy` value.
 
@@ -191,15 +195,13 @@ This is pessimistic concurrency control: coordinate before making the change. It
 
 ### Keep lock-holding transactions short
 
-The useful shape is:
+A lock-holding transaction should follow this sequence:
 
-```text
-BEGIN
-lock the row
-read and validate
-perform related database writes
-COMMIT
-```
+1. Begin the transaction.
+2. Lock the row.
+3. Read and validate the current state.
+4. Perform the related database writes.
+5. Commit the transaction.
 
 Keep payment calls, email, user input, and expensive computation outside the transaction. Those operations extend the lock duration and force conflicting requests to wait.
 
@@ -345,12 +347,10 @@ A frequently updated row remains a hot spot under either approach. Ten thousand 
 
 ### Use a transaction for related writes
 
-A single conditional update is enough only when the complete business operation fits in that statement. A reservation often needs a second write:
+A single conditional update is enough only when the complete business operation fits in that statement. A reservation often requires two writes:
 
-```text
-mark the seat as reserved
-insert the reservation record
-```
+1. Mark the seat as reserved.
+2. Insert the reservation record.
 
 Those changes must succeed or fail together:
 
