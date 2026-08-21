@@ -46,16 +46,11 @@ Read the seat. Check that it is available. Reserve it.
 
 The code fails because the decision and the write are separate. Both requests can read `available`, both can pass the check, and both can report success. The second update quietly replaces the first customer's `reservedBy` value.
 
-The business rule is simple: at most one customer may reserve a seat. Under concurrency, the availability check and the update must be protected as one operation.
+The fix must preserve the reservation rule regardless of how concurrent requests are ordered.
 
-PostgreSQL gives us two direct ways to do that:
+## The invariant: one reservation per seat
 
-- `SELECT FOR UPDATE` locks the row before the application decides. A competing request waits, then reads the committed state.
-- A conditional `UPDATE` makes the decision inside the write. A competing request attempts the change, matches zero rows, and learns that it lost.
-
-## Start with the invariant
-
-The table is deliberately small:
+The examples use this `seats` table:
 
 ```ts
 export const seatStatus = pgEnum("seat_status", [
@@ -73,13 +68,13 @@ export const seats = pgTable("seats", {
 });
 ```
 
-The state transition is:
+The relevant state transition is:
 
 ```text
 AVAILABLE -> RESERVED
 ```
 
-The invariant is stronger: at most one customer may successfully reserve a seat.
+For any seat, only one request may complete that transition successfully.
 
 The original code does not enforce that invariant because the check and the update are separate operations. Alice and Bob can interleave like this:
 
