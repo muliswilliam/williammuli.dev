@@ -34,7 +34,11 @@ await db
 
 Read the seat. Check that it is available. Reserve it.
 
+## Introduction
+
 Every statement is valid. The logic looks correct. It may also pass every test that sends one request at a time. The bug only appears when two requests make a decision from the same state before either has finished changing it.
+
+That makes concurrency bugs unusually deceptive. Nothing has to crash, time out, or return a database error. Each request can complete successfully while the combined result violates a business rule. The failure lives in the timing between otherwise reasonable operations.
 
 PostgreSQL gives us several tools for handling that race. Two particularly useful options are pessimistic locking with `SELECT FOR UPDATE` and optimistic concurrency with a conditional write.
 
@@ -48,7 +52,11 @@ A conditional write says:
 
 > Everyone can try, but the database should only accept a write if its assumptions are still true.
 
-This article builds the race, fixes it both ways, and compares what each fix means under contention. The application snippets use **TypeScript with Drizzle ORM and PostgreSQL**. I will also show the underlying SQL because concurrency is one of those areas where the database behavior matters more than the abstraction used to call it.
+The distinction is not simply about syntax. It determines whether a competing request waits, fails, retries, or discovers that it lost through an affected-row count. Those outcomes shape latency, error handling, transaction design, and how the system behaves when one resource becomes heavily contested.
+
+This article builds the race, fixes it both ways, and compares what each fix means under contention. We will also look at version-based optimistic concurrency, why conditional writes do not replace transactions, and how to choose the mechanism that matches the invariant being protected.
+
+The application snippets use **TypeScript with Drizzle ORM and PostgreSQL**. I will also show the underlying SQL because concurrency is one of those areas where the database behavior matters more than the abstraction used to call it.
 
 ## Our example: reserving a seat
 
