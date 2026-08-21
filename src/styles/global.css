@@ -34,10 +34,25 @@ body {
   margin-top: 1em;
 }
 
+.article-content h2 {
+  font-size: 1.125em;
+  font-weight: 700;
+  line-height: 1.4;
+  color: #000;
+  margin-top: 2.25em;
+}
+
 .article-content h3 {
   font-weight: 700;
   color: #000;
-  margin-top: 1.5em;
+  margin-top: 1.75em;
+}
+
+.article-content h2 code,
+.article-content h3 code {
+  background-color: transparent;
+  padding: 0;
+  font-size: 1em;
 }
 
 .article-content strong {
