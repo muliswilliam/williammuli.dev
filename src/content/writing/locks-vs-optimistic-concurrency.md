@@ -8,7 +8,13 @@ tags: [postgresql, concurrency, row-locks, optimistic-concurrency]
 
 ## Introduction
 
-Two customers click **Reserve** for seat A12 at almost the same time. Both requests return success.
+When two requests try to change the same PostgreSQL row, individually correct queries can combine into an incorrect result. This article compares two ways to prevent that: pessimistic concurrency with `SELECT FOR UPDATE` and optimistic concurrency with a conditional `UPDATE`.
+
+Both techniques can protect the same business invariant, but they handle competition differently. A row lock makes one request wait before it decides. A conditional write lets both requests attempt the change, then reports which one lost. That difference affects transaction design, latency under contention, failure handling, and retry behavior.
+
+We will build both solutions around a seat-reservation race using PostgreSQL, TypeScript, and Drizzle ORM. Along the way, we will cover transaction boundaries, version-based checks, lock duration, deadlocks, timeouts, and idempotent retries, then finish with a practical guide for choosing between the two approaches.
+
+Here is the race. Two customers click **Reserve** for seat A12 at almost the same time. Both requests return success.
 
 The database tells a different story. It contains one seat and one winner. If Bob's update runs last, the row says the seat belongs to Bob. Alice still has a confirmation for a reservation that no longer exists.
 
@@ -46,10 +52,6 @@ PostgreSQL gives us two direct ways to do that:
 
 - `SELECT FOR UPDATE` locks the row before the application decides. A competing request waits, then reads the committed state.
 - A conditional `UPDATE` makes the decision inside the write. A competing request attempts the change, matches zero rows, and learns that it lost.
-
-That behavioral difference matters more than the labels "pessimistic" and "optimistic." It determines where work waits, how conflicts reach the caller, how long transactions remain open, and which operations are safe to retry.
-
-This article reproduces the race, fixes it both ways, and follows the losing request through each solution. The examples use PostgreSQL with TypeScript and Drizzle ORM. By the end, you will know when to lock, when to write conditionally, when either approach still needs a transaction, and what changes when contention rises.
 
 ## Start with the invariant
 
