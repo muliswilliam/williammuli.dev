@@ -100,6 +100,8 @@ The reservation operation therefore needs concurrency control that allows only o
 
 ## Solution 1: lock the seat row with `SELECT FOR UPDATE`
 
+### Lock and update in the same transaction
+
 `SELECT FOR UPDATE` reads a row and acquires a row-level lock for the transaction that intends to change it.
 
 ```sql
@@ -131,7 +133,7 @@ await db.transaction(async (tx) => {
   }>(sql`
     SELECT id, status
     FROM seats
-    WHERE id = \${seatId}
+    WHERE id = ${seatId}
     FOR UPDATE
   `);
 
@@ -204,6 +206,8 @@ Do not hold the transaction open while calling a payment provider, sending email
 If callers should not wait indefinitely, define a policy. `FOR UPDATE NOWAIT` fails immediately when the row is locked. A bounded `lock_timeout` limits how long the statement may wait. In both cases, the application must translate the database failure into a retry, a conflict response, or a queued operation.
 
 ## Solution 2: enforce availability in the `UPDATE`
+
+### Check availability in the write
 
 The seat transition fits in one statement:
 
@@ -291,7 +295,7 @@ const [updatedSeat] = await db
   .set({
     status: "reserved",
     reservedBy: userId,
-    version: sql`\${seats.version} + 1`,
+    version: sql`${seats.version} + 1`,
   })
   .where(
     and(
@@ -324,6 +328,8 @@ The practical difference appears in the losing request:
 | Best fit | Short, multi-step database decisions | State transitions with a clear precondition |
 | Long gap between read and write | Poor fit | Good fit with a version check |
 
+### Conditional writes still use row locks
+
 This does not mean conditional writes avoid locks. PostgreSQL still coordinates concurrent updates to the same row. If one transaction has updated A12 but has not committed, another conditional update may wait for that transaction to finish before PostgreSQL can decide whether its `WHERE` clause still matches.
 
 The difference is ownership at the application level:
@@ -331,9 +337,13 @@ The difference is ownership at the application level:
 - `SELECT FOR UPDATE` deliberately holds a lock across a read-decide-write sequence.
 - A conditional write asks PostgreSQL to validate the assumption at write time.
 
+### Contention remains on a hot row
+
 Neither approach removes a hot spot. Ten thousand users reserving ten thousand different seats produce little conflict. Ten thousand users reserving one remaining seat produce one winner and many losers. Locking changes how the losers queue. A conditional write changes how they discover the loss.
 
 ## Transactions, failure handling, and safe retries
+
+### Use a transaction for related writes
 
 A single conditional update is enough only when the complete business operation fits in that statement. A reservation often needs a second write:
 
@@ -377,6 +387,8 @@ The condition and the transaction provide different guarantees:
 - The condition allows only an available seat to become reserved.
 - The transaction makes the seat update and reservation insert atomic.
 
+### Handle concurrency failures explicitly
+
 Concurrency failures are normal outcomes, not evidence that PostgreSQL is broken. A production implementation should define behavior for:
 
 - zero rows from a conditional write;
@@ -385,7 +397,11 @@ Concurrency failures are normal outcomes, not evidence that PostgreSQL is broken
 - transaction rollback;
 - a client retry after the server committed but the response was lost.
 
+### Retry the complete transaction
+
 Retry the complete transaction, not an arbitrary statement from the middle of it. Re-read the state and re-evaluate the business decision on each attempt. Use bounded retries with backoff so heavy contention does not create a retry storm.
+
+### Make retries idempotent
 
 Retries also need idempotency. If an attempt can charge a card, publish a message, or call another service, repeating it blindly may duplicate the side effect. Keep external I/O outside the locked transaction where possible, and use an idempotency key or durable workflow when the operation crosses system boundaries.
 
@@ -395,14 +411,14 @@ When several rows must be locked, acquire them in a consistent order. PostgreSQL
 
 Start with the invariant, then ask what the losing request should do.
 
-Choose `SELECT FOR UPDATE` when:
+### Choose `SELECT FOR UPDATE` when
 
 - the decision requires several reads or writes based on stable database state;
 - the critical section is short and entirely database-bound;
 - waiting briefly is preferable to rebuilding and retrying the operation;
 - the application has an explicit timeout and deadlock policy.
 
-Choose a conditional write when:
+### Choose a conditional write when
 
 - the change can be guarded by a precise `WHERE` condition;
 - the caller should receive a clear conflict result when the assumption is stale;
