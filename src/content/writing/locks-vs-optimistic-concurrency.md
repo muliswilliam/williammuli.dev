@@ -6,9 +6,11 @@ heroImage: /writing/locks-vs-optimistic-concurrency-hero.jpg
 tags: [postgresql, concurrency, row-locks, optimistic-concurrency]
 ---
 
+## Introduction
+
 Two customers click **Reserve** for seat A12 at almost the same time.
 
-The application handling each request runs the same code:
+Each request runs the same code:
 
 ```ts
 const seat = await db.query.seats.findFirst({
@@ -34,33 +36,20 @@ await db
 
 Read the seat. Check that it is available. Reserve it.
 
-## Introduction
+Every statement is valid. The bug is in the gap between them. Both requests can read `available` before either update commits, so both callers can be told that they reserved the same seat.
 
-Every statement is valid. The logic looks correct. It may also pass every test that sends one request at a time. The bug only appears when two requests make a decision from the same state before either has finished changing it.
+PostgreSQL gives us two direct ways to close that gap:
 
-That makes concurrency bugs unusually deceptive. Nothing has to crash, time out, or return a database error. Each request can complete successfully while the combined result violates a business rule. The failure lives in the timing between otherwise reasonable operations.
+- Lock the row with `SELECT FOR UPDATE`, then make the decision while the lock is held.
+- Put the decision in the `UPDATE` so the write succeeds only while the seat is still available.
 
-PostgreSQL gives us several tools for handling that race. Two particularly useful options are pessimistic locking with `SELECT FOR UPDATE` and optimistic concurrency with a conditional write.
+Both approaches can protect the same business rule. They differ in what happens to the competing request: it waits for a lock, or it loses a conditional write.
 
-They can protect the same business invariant, but they make competing requests behave differently.
+This article builds both solutions with PostgreSQL, TypeScript, and Drizzle ORM. It also covers version checks, transaction boundaries, contention, and retries so you can choose based on the operation rather than a rule of thumb.
 
-`SELECT FOR UPDATE` says:
+## Start with the invariant
 
-> I am working with this row. Other conflicting operations need to wait.
-
-A conditional write says:
-
-> Everyone can try, but the database should only accept a write if its assumptions are still true.
-
-The distinction is not simply about syntax. It determines whether a competing request waits, fails, retries, or discovers that it lost through an affected-row count. Those outcomes shape latency, error handling, transaction design, and how the system behaves when one resource becomes heavily contested.
-
-This article builds the race, fixes it both ways, and compares what each fix means under contention. We will also look at version-based optimistic concurrency, why conditional writes do not replace transactions, and how to choose the mechanism that matches the invariant being protected.
-
-The application snippets use **TypeScript with Drizzle ORM and PostgreSQL**. I will also show the underlying SQL because concurrency is one of those areas where the database behavior matters more than the abstraction used to call it.
-
-## Our example: reserving a seat
-
-The ticketing system has a `seats` table with three possible states:
+The table is deliberately small:
 
 ```ts
 export const seatStatus = pgEnum("seat_status", [
@@ -71,7 +60,6 @@ export const seatStatus = pgEnum("seat_status", [
 
 export const seats = pgTable("seats", {
   id: bigserial("id", { mode: "number" }).primaryKey(),
-  publicId: uuid("public_id").defaultRandom().notNull().unique(),
   number: varchar("number", { length: 20 }).notNull(),
   status: seatStatus("status").default("available").notNull(),
   reservedBy: bigint("reserved_by", { mode: "number" }),
@@ -79,29 +67,25 @@ export const seats = pgTable("seats", {
 });
 ```
 
-The state transition we care about is small:
+The state transition is:
 
 ```text
 AVAILABLE -> RESERVED
 ```
 
-The business rule is stronger than that diagram looks:
+The invariant is stronger:
 
 > At most one customer may successfully reserve a seat.
 
-The first implementation checks this rule in application code. That is where the gap opens.
-
-## The race condition
-
-Imagine Alice and Bob both attempt to reserve A12. Their requests can interleave like this:
+The original code does not enforce that invariant because the check and the update are separate operations. Alice and Bob can interleave like this:
 
 ```text
 Alice                          Bob
 
-SELECT seat A12
+SELECT A12
 -> AVAILABLE
 
-                               SELECT seat A12
+                               SELECT A12
                                -> AVAILABLE
 
 UPDATE A12
@@ -111,43 +95,21 @@ UPDATE A12
                                -> RESERVED by Bob
 ```
 
-Alice asks whether A12 is available. PostgreSQL says yes.
+Each request acts on a result that was true when it was read. The second update overwrites the first reservation, yet neither query needs to fail.
 
-Bob asks the same question before Alice's change becomes visible to him. PostgreSQL also says yes.
+The fix is not to make the read faster. The fix is to make the invariant survive every possible ordering of the two requests.
 
-Both requests then act on answers that were accurate when they were read. Alice can receive a successful response even if Bob's later update replaces `reservedBy`. No individual query needs to fail for the business operation to be wrong.
+## Fix 1: lock the row with `SELECT FOR UPDATE`
 
-The read is not the thing we need to protect. The invariant is.
-
-The application currently performs two separate actions:
-
-```text
-check the condition
-
-then
-
-act on the condition
-```
-
-Nothing guarantees the condition remains true between those actions. This is a time-of-check to time-of-use race.
-
-We need to remove that gap, either by preventing a competing transaction from changing the row while we work or by making the write itself enforce the condition.
-
-## Approach 1: `SELECT FOR UPDATE`
-
-A normal `SELECT` reads a row. `SELECT FOR UPDATE` reads it and acquires a row-level lock because the transaction intends to change it.
-
-The SQL looks like this:
+`SELECT FOR UPDATE` reads a row and acquires a row-level lock for the transaction that intends to change it.
 
 ```sql
 BEGIN;
 
-SELECT *
+SELECT id, status
 FROM seats
 WHERE id = 123
 FOR UPDATE;
-
--- verify that the seat is available
 
 UPDATE seats
 SET
@@ -158,9 +120,9 @@ WHERE id = 123;
 COMMIT;
 ```
 
-PostgreSQL holds the row lock until the transaction commits or rolls back. A conflicting update, delete, or locking read on the same row must wait for that transaction to finish.
+PostgreSQL holds the lock until the transaction commits or rolls back. A conflicting update, delete, or locking read on that row must wait.
 
-With Drizzle, the same operation can keep the locking query explicit:
+The transaction boundary is part of the solution. The lock must cover the read, the decision, and the write:
 
 ```ts
 await db.transaction(async (tx) => {
@@ -170,7 +132,7 @@ await db.transaction(async (tx) => {
   }>(sql`
     SELECT id, status
     FROM seats
-    WHERE id = ${seatId}
+    WHERE id = \${seatId}
     FOR UPDATE
   `);
 
@@ -194,125 +156,57 @@ await db.transaction(async (tx) => {
 });
 ```
 
-The transaction boundary is part of the solution. A `SELECT FOR UPDATE` outside a transaction, or inside a transaction that ends before the related update, does not protect the decision. The lock must remain held while the application validates the row and performs the change.
+A locking read outside a transaction is ineffective for this workflow. In autocommit mode, the statement ends immediately, so PostgreSQL releases the lock before the later update runs.
 
-## What happens to the competing request?
+### What the second request sees
 
-Replay the same race with the locking read:
+With the lock in place, the race becomes an ordered sequence:
 
 ```text
 Alice                          Bob
 
 BEGIN
-
 SELECT A12 FOR UPDATE
 -> AVAILABLE
 -> lock acquired
 
                                BEGIN
-
                                SELECT A12 FOR UPDATE
-                               -> waits...
+                               -> waits
 
 UPDATE A12
 -> RESERVED by Alice
-
 COMMIT
 -> lock released
 
                                SELECT returns
                                -> RESERVED
-
-                               cannot reserve
-
                                ROLLBACK
 ```
 
-Alice reaches the row first and acquires the lock. Bob does not get to read the same row for update and independently decide that it is available. His query waits.
+Bob does not make a decision from the old state. His locking read resumes after Alice commits and sees the new value.
 
-When Alice commits, Bob's query continues. It now sees `reserved`, so the application rejects his attempt.
+This is pessimistic concurrency control: coordinate before making the change. It fits operations that must read stable state and perform several related database actions, such as validating a balance, inserting a ledger entry, and updating the account.
 
-The database has turned two concurrent decisions into an ordered sequence. Only one transaction gets to make the decision from the locked state at a time.
+### Keep the locked section short
 
-## Why this is pessimistic concurrency control
-
-Pessimistic concurrency assumes another operation may conflict, so it coordinates access before doing the work:
-
-```text
-acquire lock
--> inspect state
--> perform related writes
--> commit
--> release lock
-```
-
-That model is useful when the operation requires several related database steps based on a stable row.
-
-Consider a withdrawal workflow:
-
-```text
-lock account
--> read balance
--> validate withdrawal
--> insert ledger entry
--> update balance
--> commit
-```
-
-The decision cannot be expressed as one simple state transition. The transaction needs to read a value, calculate from it, write a related record, and update the original row. Locking the account gives that critical section a clear owner.
-
-The cost is waiting. While one transaction holds the lock, conflicting transactions cannot proceed.
-
-## Keep locked transactions short
-
-This is a dangerous transaction:
+The useful shape is:
 
 ```text
 BEGIN
-
-SELECT seat FOR UPDATE
-
-call payment provider
-
-send confirmation email
-
-perform expensive computation
-
-UPDATE seat
-
+lock the row
+read and validate
+perform related database writes
 COMMIT
 ```
 
-The lock now lives for the duration of network calls and unrelated work.
+Do not hold the transaction open while calling a payment provider, sending email, waiting for user input, or performing expensive computation. Every conflicting request waits for that work even though it does not protect the invariant.
 
-The payment provider may respond in 100 milliseconds. It may take five seconds. It may time out after thirty. During that time, every transaction that needs a conflicting lock on the seat waits behind it while also occupying application and database resources.
+If callers should not wait indefinitely, define a policy. `FOR UPDATE NOWAIT` fails immediately when the row is locked. A bounded `lock_timeout` limits how long the statement may wait. In both cases, the application must translate the database failure into a retry, a conflict response, or a queued operation.
 
-Keep transactions that hold locks as short as the invariant allows. Do the database work that needs atomicity, commit, then perform unrelated I/O outside the critical section. If the business process spans a long time, model that time explicitly with states such as `reserved` and `reservation_expires_at` instead of holding a database transaction open.
+## Fix 2: make the write conditional
 
-Waiting also needs a policy. PostgreSQL supports `NOWAIT` when the caller should fail immediately rather than queue:
-
-```sql
-SELECT *
-FROM seats
-WHERE id = 123
-FOR UPDATE NOWAIT;
-```
-
-Another option is a bounded `lock_timeout`. Both turn an indefinite wait into an application-visible failure that can become a retry, a conflict response, or a queued job. The important part is deciding what waiting means for the user instead of accepting an unbounded default accidentally.
-
-## Approach 2: conditional writes
-
-The original implementation is dangerous because the availability check happens separately from the write:
-
-```text
-SELECT seat
-
-if seat.status == AVAILABLE
-
-    UPDATE seat
-```
-
-We can move the condition into the update itself:
+The seat transition fits in one statement:
 
 ```sql
 UPDATE seats
@@ -324,16 +218,14 @@ WHERE id = 123
 RETURNING *;
 ```
 
-This statement does not say, "I saw an available seat earlier, so update it now."
+The condition is evaluated as part of the write. The statement means:
 
-It says:
+> Reserve this seat only if it is still available when PostgreSQL updates it.
 
-> Reserve this seat only if it is still available when PostgreSQL performs the update.
-
-The Drizzle version is direct:
+The Drizzle version is just as direct:
 
 ```ts
-const reserved = await db
+const [reservedSeat] = await db
   .update(seats)
   .set({
     status: "reserved",
@@ -347,16 +239,12 @@ const reserved = await db
   )
   .returning();
 
-if (reserved.length === 0) {
+if (!reservedSeat) {
   throw new Error("Seat is no longer available");
 }
 ```
 
-There is no application-level interval between checking the state and changing it. PostgreSQL evaluates the `WHERE` condition as part of the write. The returned rows tell the application whether the state transition happened.
-
-## Alice and Bob try again
-
-Both requests now submit the same conditional update:
+There is no application-level gap between checking the status and changing it. One request updates the row and receives it through `RETURNING`. The other request matches zero rows:
 
 ```text
 Alice                          Bob
@@ -367,48 +255,25 @@ WHERE status = AVAILABLE
                                UPDATE A12
                                WHERE status = AVAILABLE
 
--> 1 row updated
+-> 1 row returned
 
-                               -> 0 rows updated
+                               -> 0 rows returned
 ```
 
-Alice changes the row first. When Bob's statement can evaluate the row, `status = 'available'` is no longer true. His update matches zero rows.
+Zero rows is not an exceptional database failure. It is the domain result: the precondition no longer holds. The application can return an HTTP `409 Conflict`, show that the seat was just taken, or offer another seat.
 
-Zero rows is not a database error. It is the result the application needs:
+Checking the result is mandatory. A conditional update whose affected-row count or returned rows are ignored does not tell the caller whether the operation succeeded.
 
-> The precondition for this operation no longer holds.
+### Status checks and version checks
 
-The application can turn that outcome into an HTTP `409 Conflict`, a domain-specific error, or a message such as "This seat was just reserved by someone else."
+The seat update names the exact business condition:
 
-Only one caller can observe a returned row and report a successful reservation. The invariant now lives in the statement that changes the data.
-
-## Why this is optimistic concurrency control
-
-Optimistic concurrency does not reserve exclusive access before the application attempts its change. It lets concurrent operations compete, then detects which operation was based on stale assumptions.
-
-```text
-attempt conditional work
--> inspect result
--> succeed or report conflict
+```sql
+WHERE id = 123
+  AND status = 'available'
 ```
 
-This is optimistic because the common path assumes there will be no conflict. Most requests can complete without the application opening a transaction, locking a row, reading it, and then issuing a second statement.
-
-The database still coordinates concurrent writes internally. A conditional update does not make row-level contention disappear. The architectural difference is that the application does not deliberately hold a lock across a read-decide-write sequence. It asks PostgreSQL to make the decision and the change in one operation.
-
-## Version-based optimistic concurrency
-
-A status check protects one specific transition. Sometimes we need to detect any change made since an object was read.
-
-Suppose the application reads this row:
-
-```text
-id       123
-status   available
-version  7
-```
-
-It later updates the row with the version it observed:
+Sometimes the requirement is broader: reject the write if anything changed after the row was read. Add a version column and include the observed version in the update:
 
 ```sql
 UPDATE seats
@@ -421,17 +286,15 @@ WHERE id = 123
 RETURNING *;
 ```
 
-If nobody changed the row, version `7` still matches and the update succeeds. If another request changed it first, the stored version is now `8`, the condition matches nothing, and zero rows are returned.
-
 In Drizzle:
 
 ```ts
-const updated = await db
+const [updatedSeat] = await db
   .update(seats)
   .set({
     status: "reserved",
     reservedBy: userId,
-    version: sql`${seats.version} + 1`,
+    version: sql`\${seats.version} + 1`,
   })
   .where(
     and(
@@ -441,124 +304,48 @@ const updated = await db
   )
   .returning();
 
-if (updated.length === 0) {
+if (!updatedSeat) {
   throw new ConcurrencyConflictError();
 }
 ```
 
-The status-based update asks whether one business condition still holds:
+A status condition asks, "Is this transition still allowed?" A version condition asks, "Has this row changed since I read it?"
+
+They protect different assumptions. A current version does not prove that a sold seat may be reserved. An available status does not detect an unrelated edit. Use the condition the operation depends on, or use both when both assumptions matter.
+
+Version checks are useful when time passes between reading and writing, such as editing a form. Holding a database lock during that time would waste a connection and block unrelated work.
+
+## What changes under contention
+
+The practical difference appears in the losing request:
+
+| Question | `SELECT FOR UPDATE` | Conditional write |
+| --- | --- | --- |
+| When is conflict handled? | Before the decision | At the attempted write |
+| What does the competing request do? | Waits, or fails to acquire the lock | Completes with zero matching rows |
+| Typical database work | Locking read plus one or more writes | One write, unless related changes need a transaction |
+| Best fit | Short, multi-step database decisions | State transitions with a clear precondition |
+| Long gap between read and write | Poor fit | Good fit with a version check |
+
+This does not mean conditional writes avoid locks. PostgreSQL still coordinates concurrent updates to the same row. If one transaction has updated A12 but has not committed, another conditional update may wait for that transaction to finish before PostgreSQL can decide whether its `WHERE` clause still matches.
+
+The difference is ownership at the application level:
+
+- `SELECT FOR UPDATE` deliberately holds a lock across a read-decide-write sequence.
+- A conditional write asks PostgreSQL to validate the assumption at write time.
+
+Neither approach removes a hot spot. Ten thousand users reserving ten thousand different seats produce little conflict. Ten thousand users reserving one remaining seat produce one winner and many losers. Locking changes how the losers queue. A conditional write changes how they discover the loss.
+
+## Transactions, failures, and retries
+
+A single conditional update is enough only when the complete business operation fits in that statement. A reservation often needs a second write:
 
 ```text
-Is this seat still available?
+mark the seat as reserved
+insert the reservation record
 ```
 
-The version-based update asks a broader question:
-
-```text
-Has this row changed since I read it?
-```
-
-Version checks are useful for forms, documents, account settings, and other objects that may be read, edited for some time, and written later. Holding a database lock while a person edits a form would be a poor design. Sending the version with the eventual update lets the server reject a stale save without holding a connection open during that think time.
-
-The application must still decide what a version conflict means. It may ask the user to reload, merge non-overlapping changes, or re-read and retry. Retrying blindly is only safe when repeating the business operation cannot duplicate an external side effect or produce a different unintended decision.
-
-## Status checks and version checks protect different things
-
-The two conditional-write forms are related, but they are not interchangeable.
-
-This update:
-
-```sql
-UPDATE seats
-SET status = 'reserved'
-WHERE id = 123
-  AND status = 'available';
-```
-
-protects the `AVAILABLE -> RESERVED` transition. It does not detect an unrelated change to a column such as `notes` if the seat remains available.
-
-This update:
-
-```sql
-UPDATE seats
-SET status = 'reserved', version = version + 1
-WHERE id = 123
-  AND version = 7;
-```
-
-detects any update that follows the same versioning discipline. It does not, by itself, express that only available seats may be reserved. A caller with the current version could still move a sold seat back to reserved unless the application, statement, or database also enforces the allowed state transition.
-
-The condition should name the assumption the business operation actually depends on. Sometimes that is a domain state, sometimes it is a version, and sometimes both belong in the `WHERE` clause.
-
-## Waiting versus failing
-
-The easiest way to remember the practical difference is to look at the losing request.
-
-With pessimistic locking:
-
-```text
-Request A -> gets the lock
-Request B -> waits
-```
-
-With optimistic concurrency:
-
-```text
-Request A -> succeeds
-Request B -> attempts the conditional update
-Request B -> receives a conflict result
-```
-
-For two people competing for one seat, either model can produce a correct result.
-
-Now imagine 20,000 people trying to buy the final ticket for a major concert. Queuing thousands of transactions behind a row lock is unlikely to help. Once the first reservation succeeds, the waiters have no useful work left to perform. A conditional update lets each losing request discover that the required state no longer exists and return a conflict.
-
-There are workloads where waiting is the better tradeoff. If a short operation performs several database steps and conflicts are common, letting one transaction finish while another waits can be simpler and cheaper than repeatedly aborting, rebuilding state, and retrying the entire operation.
-
-The choice is not "locks are slow" versus "optimistic updates are fast." It is a choice about what the system should make competing work do.
-
-## Contention does not disappear
-
-Consider two workloads:
-
-```text
-10,000 users
-10,000 different seats
-```
-
-and:
-
-```text
-10,000 users
-1 remaining seat
-```
-
-In the first workload, conflicts are rare. Optimistic concurrency is a natural fit because nearly every operation can succeed on its first attempt.
-
-In the second workload, contention is unavoidable. With a conditional write, many operations lose. With pessimistic locking, many operations wait or fail to acquire a lock. Neither mechanism removes the fact that thousands of callers want one resource.
-
-They determine:
-
-- who waits;
-- who fails;
-- who retries;
-- how quickly a losing request learns the result;
-- how much work happens inside the critical section;
-- which invariant remains true regardless of timing.
-
-Those are application and product decisions as much as database decisions. A background worker may be happy to wait or retry. A person clicking a button may need a quick conflict response. A payment flow may require an idempotency key before any retry is safe.
-
-## Conditional writes do not replace transactions
-
-A single conditional update is enough when the invariant and the operation fit in that one statement. Real reservation flows often need another write:
-
-```text
-update the seat
-
-insert a reservation record
-```
-
-Those changes should succeed or fail together. We can combine a conditional write with a transaction:
+Those changes must succeed or fail together:
 
 ```ts
 await db.transaction(async (tx) => {
@@ -588,82 +375,56 @@ await db.transaction(async (tx) => {
 });
 ```
 
-Two guarantees now work together.
+The condition and the transaction provide different guarantees:
 
-The conditional write protects:
+- The condition allows only an available seat to become reserved.
+- The transaction makes the seat update and reservation insert atomic.
 
-> Only an available seat may transition to reserved.
+Concurrency failures are normal outcomes, not evidence that PostgreSQL is broken. A production implementation should define behavior for:
 
-The transaction protects:
+- zero rows from a conditional write;
+- lock acquisition failure or timeout;
+- deadlock detection;
+- transaction rollback;
+- a client retry after the server committed but the response was lost.
 
-> The seat update and reservation record either both happen or neither happens.
+Retry the complete transaction, not an arbitrary statement from the middle of it. Re-read the state and re-evaluate the business decision on each attempt. Use bounded retries with backoff so heavy contention does not create a retry storm.
 
-Transactions provide atomicity across the related writes. The condition provides concurrency control for the state transition. They solve different parts of the operation.
+Retries also need idempotency. If an attempt can charge a card, publish a message, or call another service, repeating it blindly may duplicate the side effect. Keep external I/O outside the locked transaction where possible, and use an idempotency key or durable workflow when the operation crosses system boundaries.
 
-## When `SELECT FOR UPDATE` is the better fit
+When several rows must be locked, acquire them in a consistent order. PostgreSQL can detect and break a deadlock by aborting one transaction, but consistent ordering prevents many deadlocks before they occur.
 
-Use `SELECT FOR UPDATE` when the operation needs to:
+## How to choose
 
-1. read current state;
-2. make a decision from that state;
-3. perform multiple related database operations;
-4. prevent a conflicting modification during that short critical section.
+Start with the invariant, then ask what the losing request should do.
 
-It is particularly useful when contention is expected and the work inside the lock is small and entirely database-bound. The model is direct: one transaction owns the decision, competing transactions wait, and the next transaction sees the committed result.
+Choose `SELECT FOR UPDATE` when:
 
-Be cautious when the transaction includes network I/O, user think time, expensive computation, or an unpredictable number of rows. Decide how long callers may wait, acquire locks in a consistent order when several rows are involved, and handle deadlocks and timeouts as normal operational outcomes.
+- the decision requires several reads or writes based on stable database state;
+- the critical section is short and entirely database-bound;
+- waiting briefly is preferable to rebuilding and retrying the operation;
+- the application has an explicit timeout and deadlock policy.
 
-## When a conditional write is the better fit
+Choose a conditional write when:
 
-Use a conditional write when the operation naturally reads as:
+- the change is naturally expressed as "update only if this condition is still true";
+- the caller should receive a clear conflict result when the assumption is stale;
+- conflicts are uncommon or failed contenders have no useful work left;
+- meaningful time passes between reading and writing.
 
-> Perform this state transition only if condition X is still true.
+Use a transaction with either approach when several database changes must commit atomically.
 
-Seat reservation maps cleanly to that model:
+The two techniques can also coexist. A workflow may lock one aggregate while using a unique constraint or conditional update to protect another invariant. The goal is not to standardize on one concurrency primitive. The goal is to place each invariant where PostgreSQL can enforce it.
 
-```text
-AVAILABLE -> RESERVED
-```
+## Practical takeaways
 
-It is also a strong fit when conflicts are uncommon, when callers should fail quickly, or when there is meaningful time between reading and writing. The operation stays small, and zero updated rows becomes a first-class domain result rather than an unexpected database failure.
+1. Write the invariant before choosing the mechanism.
+2. Do not separate a business precondition from its write unless a transaction protects the gap.
+3. Use `SELECT FOR UPDATE` for short, multi-step decisions that need stable rows.
+4. Use conditional writes for state transitions that fit in a `WHERE` clause.
+5. Treat zero affected rows as a domain conflict, not a successful update.
+6. Keep network calls and user think time outside locked transactions.
+7. Combine concurrency control with transactions when related writes must be atomic.
+8. Design timeouts, deadlock handling, idempotency, and bounded retries as part of the operation.
 
-Make sure every caller checks that result. A conditional update whose affected-row count is ignored is only half an implementation. Also define whether a conflict is returned to the user, retried, merged, or queued.
-
-## The database should protect the invariant
-
-The original implementation asks the application to trust an observation it made earlier:
-
-```text
-I checked the seat,
-and I think it is still available.
-```
-
-Both corrected implementations move that trust into the database.
-
-The locking version guarantees that no conflicting transaction can change the row while the application makes its decision.
-
-The conditional version guarantees that the state transition only happens if the required condition is true at write time.
-
-The useful starting question is not "Should I use `SELECT FOR UPDATE`?" It is:
-
-> What invariant am I trying to protect?
-
-For this ticketing system:
-
-> A seat cannot have two active reservations.
-
-Once the invariant is explicit, choose the simplest database mechanism that enforces it correctly. That may be a unique constraint, a conditional update, a row lock, a transaction at a stronger isolation level, or a combination of them.
-
-For the race in this article, the decision comes down to behavior under conflict:
-
-```text
-Pessimistic concurrency
--> coordinate before the change
--> competing work waits or fails to acquire the lock
-
-Optimistic concurrency
--> attempt the change with a precondition
--> competing work succeeds or receives a conflict result
-```
-
-Both approaches can protect the same business rule. They resolve the race at different moments. Choose based on the shape of the operation, the expected contention, and what the losing request should do next.
+For seat A12, both solutions preserve the rule that only one reservation may succeed. The deciding factor is the behavior you want under conflict: make the competitor wait before deciding, or let it attempt the transition and report that the precondition was lost.
