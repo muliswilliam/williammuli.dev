@@ -96,7 +96,7 @@ UPDATE A12
 
 Each request acts on a result that was true when it was read. The second update overwrites the first reservation, yet neither query needs to fail.
 
-The fix is not to make the read faster. The fix is to make the invariant survive every possible ordering of the two requests.
+The reservation operation therefore needs concurrency control that allows only one request to complete the state transition.
 
 ## Fix 1: lock the row with `SELECT FOR UPDATE`
 
