@@ -18,7 +18,7 @@ Here is the race. Two customers click **Reserve** for seat A12 at almost the sam
 
 The database tells a different story. It contains one seat and one winner. If Bob's update runs last, the row says the seat belongs to Bob. Alice still has a confirmation for a reservation that no longer exists.
 
-Nothing crashed. No query failed. Each request ran the same reasonable-looking code:
+The bug appears only when two executions of this code interleave:
 
 ```ts
 const seat = await db.query.seats.findFirst({
