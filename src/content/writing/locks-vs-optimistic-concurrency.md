@@ -46,7 +46,7 @@ Read the seat. Check that it is available. Reserve it.
 
 The code fails because the decision and the write are separate. Both requests can read `available`, both can pass the check, and both can report success. The second update quietly replaces the first customer's `reservedBy` value.
 
-The business rule is simple: at most one customer may reserve a seat. Enforcing it under concurrency requires the database to close the gap between "I saw an available seat" and "I reserved it."
+The business rule is simple: at most one customer may reserve a seat. Under concurrency, the availability check and the update must be protected as one operation.
 
 PostgreSQL gives us two direct ways to do that:
 
@@ -79,9 +79,7 @@ The state transition is:
 AVAILABLE -> RESERVED
 ```
 
-The invariant is stronger:
-
-> At most one customer may successfully reserve a seat.
+The invariant is stronger: at most one customer may successfully reserve a seat.
 
 The original code does not enforce that invariant because the check and the update are separate operations. Alice and Bob can interleave like this:
 
@@ -224,9 +222,7 @@ WHERE id = 123
 RETURNING *;
 ```
 
-The condition is evaluated as part of the write. The statement means:
-
-> Reserve this seat only if it is still available when PostgreSQL updates it.
+The condition is evaluated as part of the write, so PostgreSQL reserves the seat only if it is still available at update time.
 
 The Drizzle version is just as direct:
 
@@ -315,7 +311,7 @@ if (!updatedSeat) {
 }
 ```
 
-A status condition asks, "Is this transition still allowed?" A version condition asks, "Has this row changed since I read it?"
+A status condition validates a specific state transition. A version condition detects any versioned change made after the row was read.
 
 They protect different assumptions. A current version does not prove that a sold seat may be reserved. An available status does not detect an unrelated edit. Use the condition the operation depends on, or use both when both assumptions matter.
 
@@ -413,7 +409,7 @@ Choose `SELECT FOR UPDATE` when:
 
 Choose a conditional write when:
 
-- the change is naturally expressed as "update only if this condition is still true";
+- the change can be guarded by a precise `WHERE` condition;
 - the caller should receive a clear conflict result when the assumption is stale;
 - conflicts are uncommon or failed contenders have no useful work left;
 - meaningful time passes between reading and writing.
