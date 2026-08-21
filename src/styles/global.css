@@ -30,6 +30,13 @@ body {
   color: #000;
 }
 
+.article-content {
+  /* Safari paints multi-paragraph text selection edge-to-edge across the
+     viewport instead of clipping it to this column unless it establishes
+     its own block-formatting context. */
+  overflow-x: hidden;
+}
+
 .article-content > * + * {
   margin-top: 1em;
 }
