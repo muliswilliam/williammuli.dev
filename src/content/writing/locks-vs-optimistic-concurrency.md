@@ -8,9 +8,11 @@ tags: [postgresql, concurrency, row-locks, optimistic-concurrency]
 
 ## Introduction
 
-Two customers click **Reserve** for seat A12 at almost the same time.
+Two customers click **Reserve** for seat A12 at almost the same time. Both requests return success.
 
-Each request runs the same code:
+The database tells a different story. It contains one seat and one winner. If Bob's update runs last, the row says the seat belongs to Bob. Alice still has a confirmation for a reservation that no longer exists.
+
+Nothing crashed. No query failed. Each request ran the same reasonable-looking code:
 
 ```ts
 const seat = await db.query.seats.findFirst({
@@ -36,16 +38,18 @@ await db
 
 Read the seat. Check that it is available. Reserve it.
 
-Every statement is valid. The bug is in the gap between them. Both requests can read `available` before either update commits, so both callers can be told that they reserved the same seat.
+The code fails because the decision and the write are separate. Both requests can read `available`, both can pass the check, and both can report success. The second update quietly replaces the first customer's `reservedBy` value.
 
-PostgreSQL gives us two direct ways to close that gap:
+The business rule is simple: at most one customer may reserve a seat. Enforcing it under concurrency requires the database to close the gap between "I saw an available seat" and "I reserved it."
 
-- Lock the row with `SELECT FOR UPDATE`, then make the decision while the lock is held.
-- Put the decision in the `UPDATE` so the write succeeds only while the seat is still available.
+PostgreSQL gives us two direct ways to do that:
 
-Both approaches can protect the same business rule. They differ in what happens to the competing request: it waits for a lock, or it loses a conditional write.
+- `SELECT FOR UPDATE` locks the row before the application decides. A competing request waits, then reads the committed state.
+- A conditional `UPDATE` makes the decision inside the write. A competing request attempts the change, matches zero rows, and learns that it lost.
 
-This article builds both solutions with PostgreSQL, TypeScript, and Drizzle ORM. It also covers version checks, transaction boundaries, contention, and retries so you can choose based on the operation rather than a rule of thumb.
+That behavioral difference matters more than the labels "pessimistic" and "optimistic." It determines where work waits, how conflicts reach the caller, how long transactions remain open, and which operations are safe to retry.
+
+This article reproduces the race, fixes it both ways, and follows the losing request through each solution. The examples use PostgreSQL with TypeScript and Drizzle ORM. By the end, you will know when to lock, when to write conditionally, when either approach still needs a transaction, and what changes when contention rises.
 
 ## Start with the invariant
 
