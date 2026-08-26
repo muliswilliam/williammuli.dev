@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 660" width="960" height="660" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace">
+  <defs>
+    <marker id="compare-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#000000"/>
+    </marker>
+  </defs>
+
+  <rect width="960" height="660" fill="#fdfff4"/>
+  <text x="480" y="48" font-size="20" font-weight="700" fill="#000000" text-anchor="middle">A different snapshot rule, but the same final result</text>
+
+  <rect x="50" y="88" width="400" height="70" rx="8" fill="#000000"/>
+  <text x="250" y="117" font-size="18" font-weight="700" fill="#fdfff4" text-anchor="middle">READ COMMITTED</text>
+  <text x="250" y="141" font-size="12" fill="#D1D5DB" text-anchor="middle">a fresh snapshot for each statement</text>
+
+  <rect x="510" y="88" width="400" height="70" rx="8" fill="#fdfff4" stroke="#000000" stroke-width="2.5"/>
+  <text x="710" y="117" font-size="18" font-weight="700" fill="#000000" text-anchor="middle">REPEATABLE READ</text>
+  <text x="710" y="141" font-size="12" fill="#374151" text-anchor="middle">one snapshot for the transaction</text>
+
+  <rect x="80" y="202" width="340" height="72" rx="8" fill="#F3F4F6" stroke="#D1D5DB" stroke-width="2"/>
+  <text x="250" y="231" font-size="13" font-weight="700" fill="#111827" text-anchor="middle">Alice sees Bob ON</text>
+  <text x="250" y="254" font-size="12" fill="#374151" text-anchor="middle">Bob sees Alice ON</text>
+
+  <rect x="540" y="202" width="340" height="72" rx="8" fill="#F3F4F6" stroke="#D1D5DB" stroke-width="2"/>
+  <text x="710" y="231" font-size="13" font-weight="700" fill="#111827" text-anchor="middle">Alice sees Bob ON</text>
+  <text x="710" y="254" font-size="12" fill="#374151" text-anchor="middle">Bob sees Alice ON</text>
+
+  <line x1="250" y1="280" x2="250" y2="326" stroke="#000000" stroke-width="2" marker-end="url(#compare-arrow)"/>
+  <line x1="710" y1="280" x2="710" y2="326" stroke="#000000" stroke-width="2" marker-end="url(#compare-arrow)"/>
+
+  <rect x="80" y="334" width="340" height="72" rx="8" fill="#F3F4F6" stroke="#D1D5DB" stroke-width="2"/>
+  <text x="250" y="363" font-size="13" font-weight="700" fill="#111827" text-anchor="middle">They update different rows</text>
+  <text x="250" y="386" font-size="12" fill="#374151" text-anchor="middle">no same-row conflict</text>
+
+  <rect x="540" y="334" width="340" height="72" rx="8" fill="#F3F4F6" stroke="#D1D5DB" stroke-width="2"/>
+  <text x="710" y="363" font-size="13" font-weight="700" fill="#111827" text-anchor="middle">They update different rows</text>
+  <text x="710" y="386" font-size="12" fill="#374151" text-anchor="middle">no same-row conflict</text>
+
+  <line x1="250" y1="412" x2="250" y2="458" stroke="#000000" stroke-width="2" marker-end="url(#compare-arrow)"/>
+  <line x1="710" y1="412" x2="710" y2="458" stroke="#000000" stroke-width="2" marker-end="url(#compare-arrow)"/>
+
+  <rect x="80" y="466" width="340" height="82" rx="8" fill="#000000"/>
+  <text x="250" y="496" font-size="13" font-weight="700" fill="#fdfff4" text-anchor="middle">Both transactions commit</text>
+  <text x="250" y="524" font-size="16" font-weight="700" fill="#fdfff4" text-anchor="middle">0 people on call</text>
+
+  <rect x="540" y="466" width="340" height="82" rx="8" fill="#000000"/>
+  <text x="710" y="496" font-size="13" font-weight="700" fill="#fdfff4" text-anchor="middle">Both transactions commit</text>
+  <text x="710" y="524" font-size="16" font-weight="700" fill="#fdfff4" text-anchor="middle">0 people on call</text>
+
+  <rect x="130" y="582" width="700" height="48" rx="8" fill="#fdfff4" stroke="#000000" stroke-width="2.5"/>
+  <text x="480" y="607" font-size="13" font-weight="700" fill="#000000" text-anchor="middle" dominant-baseline="middle">Repeatable Read changes what each transaction sees, not which rows conflict</text>
+</svg>

@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 520" width="960" height="520" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace">
+  <defs>
+    <marker id="cycle-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#000000"/>
+    </marker>
+  </defs>
+
+  <rect width="960" height="520" fill="#fdfff4"/>
+
+  <text x="480" y="54" font-size="20" font-weight="700" fill="#000000" text-anchor="middle">The two transactions depend on each other</text>
+
+  <rect x="70" y="198" width="240" height="104" rx="8" fill="#000000"/>
+  <text x="190" y="237" font-size="18" font-weight="700" fill="#fdfff4" text-anchor="middle">Alice's transaction</text>
+  <text x="190" y="270" font-size="12" fill="#D1D5DB" text-anchor="middle">sets Alice OFF</text>
+
+  <rect x="650" y="198" width="240" height="104" rx="8" fill="#fdfff4" stroke="#000000" stroke-width="2.5"/>
+  <text x="770" y="237" font-size="18" font-weight="700" fill="#000000" text-anchor="middle">Bob's transaction</text>
+  <text x="770" y="270" font-size="12" fill="#374151" text-anchor="middle">sets Bob OFF</text>
+
+  <path d="M310 220 C410 105, 550 105, 650 220" fill="none" stroke="#000000" stroke-width="2.5" marker-end="url(#cycle-arrow)"/>
+  <rect x="323" y="92" width="314" height="66" rx="8" fill="#F3F4F6" stroke="#D1D5DB" stroke-width="2"/>
+  <text x="480" y="118" font-size="12" font-weight="700" fill="#111827" text-anchor="middle">Alice reads Bob as ON</text>
+  <text x="480" y="142" font-size="12" fill="#374151" text-anchor="middle">Bob later changes his row to OFF</text>
+
+  <path d="M650 280 C550 415, 410 415, 310 280" fill="none" stroke="#000000" stroke-width="2.5" marker-end="url(#cycle-arrow)"/>
+  <rect x="323" y="362" width="314" height="66" rx="8" fill="#F3F4F6" stroke="#D1D5DB" stroke-width="2"/>
+  <text x="480" y="388" font-size="12" font-weight="700" fill="#111827" text-anchor="middle">Bob reads Alice as ON</text>
+  <text x="480" y="412" font-size="12" fill="#374151" text-anchor="middle">Alice later changes her row to OFF</text>
+
+  <circle cx="480" cy="250" r="50" fill="#fdfff4" stroke="#000000" stroke-width="2.5"/>
+  <text x="480" y="242" font-size="13" font-weight="700" fill="#000000" text-anchor="middle">dependency</text>
+  <text x="480" y="264" font-size="13" font-weight="700" fill="#000000" text-anchor="middle">cycle</text>
+
+  <text x="480" y="486" font-size="12" font-style="italic" font-weight="600" fill="#6B7280" text-anchor="middle">Repeatable Read does not reject this cycle</text>
+</svg>

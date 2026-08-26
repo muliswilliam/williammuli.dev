@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 650" width="960" height="650" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace">
+  <rect width="960" height="650" fill="#fdfff4"/>
+
+  <text x="480" y="48" font-size="20" font-weight="700" fill="#000000" text-anchor="middle">Five people try to go off call at the same time</text>
+  <text x="480" y="76" font-size="12" font-style="italic" fill="#6B7280" text-anchor="middle">one measured run</text>
+
+  <rect x="50" y="108" width="400" height="72" rx="8" fill="#000000"/>
+  <text x="250" y="138" font-size="18" font-weight="700" fill="#fdfff4" text-anchor="middle">SERIALIZABLE + RETRY</text>
+  <text x="250" y="162" font-size="12" fill="#D1D5DB" text-anchor="middle">detects conflicts and retries</text>
+
+  <rect x="510" y="108" width="400" height="72" rx="8" fill="#fdfff4" stroke="#000000" stroke-width="2.5"/>
+  <text x="710" y="138" font-size="18" font-weight="700" fill="#000000" text-anchor="middle">REPEATABLE READ</text>
+  <text x="710" y="162" font-size="12" fill="#374151" text-anchor="middle">does not detect write skew</text>
+
+  <text x="86" y="224" font-size="12" font-weight="700" fill="#374151">TRANSACTION ATTEMPTS</text>
+  <rect x="86" y="240" width="300" height="28" rx="5" fill="#000000"/>
+  <text x="398" y="255" font-size="16" font-weight="700" fill="#000000" dominant-baseline="middle">11</text>
+
+  <text x="546" y="224" font-size="12" font-weight="700" fill="#374151">TRANSACTION ATTEMPTS</text>
+  <rect x="546" y="240" width="136" height="28" rx="5" fill="#000000"/>
+  <text x="694" y="255" font-size="16" font-weight="700" fill="#000000" dominant-baseline="middle">5</text>
+
+  <text x="86" y="316" font-size="12" font-weight="700" fill="#374151">SERIALIZATION FAILURES</text>
+  <rect x="86" y="332" width="164" height="28" rx="5" fill="#000000"/>
+  <text x="262" y="347" font-size="16" font-weight="700" fill="#000000" dominant-baseline="middle">6</text>
+
+  <text x="546" y="316" font-size="12" font-weight="700" fill="#374151">SERIALIZATION FAILURES</text>
+  <rect x="546" y="332" width="4" height="28" rx="2" fill="#000000"/>
+  <text x="566" y="347" font-size="16" font-weight="700" fill="#000000" dominant-baseline="middle">0</text>
+
+  <text x="86" y="408" font-size="12" font-weight="700" fill="#374151">WALL-CLOCK TIME</text>
+  <rect x="86" y="424" width="300" height="28" rx="5" fill="#000000"/>
+  <text x="398" y="439" font-size="16" font-weight="700" fill="#000000" dominant-baseline="middle">331 ms</text>
+
+  <text x="546" y="408" font-size="12" font-weight="700" fill="#374151">WALL-CLOCK TIME</text>
+  <rect x="546" y="424" width="169" height="28" rx="5" fill="#000000"/>
+  <text x="727" y="439" font-size="16" font-weight="700" fill="#000000" dominant-baseline="middle">186 ms</text>
+
+  <rect x="86" y="500" width="300" height="84" rx="8" fill="#000000"/>
+  <text x="236" y="530" font-size="13" font-weight="700" fill="#fdfff4" text-anchor="middle">FINAL STATE</text>
+  <text x="236" y="559" font-size="17" font-weight="700" fill="#fdfff4" text-anchor="middle">1 person remains on call</text>
+  <text x="236" y="579" font-size="11" fill="#D1D5DB" text-anchor="middle">rule preserved</text>
+
+  <rect x="546" y="500" width="300" height="84" rx="8" fill="#fdfff4" stroke="#000000" stroke-width="2.5"/>
+  <text x="696" y="530" font-size="13" font-weight="700" fill="#000000" text-anchor="middle">FINAL STATE</text>
+  <text x="696" y="559" font-size="17" font-weight="700" fill="#000000" text-anchor="middle">0 people remain on call</text>
+  <text x="696" y="579" font-size="11" fill="#374151" text-anchor="middle">rule broken</text>
+
+  <text x="480" y="622" font-size="12" font-style="italic" font-weight="600" fill="#6B7280" text-anchor="middle">Repeatable Read did less work because it did not detect the problem</text>
+</svg>
