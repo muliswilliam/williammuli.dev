@@ -39,7 +39,7 @@ Row locks are stored differently from table locks. A table lock is an entry in a
 
 - There is no limit on how many rows a transaction can lock. Row locks do not consume `max_locks_per_transaction` memory.
 - Locking a row costs a write. `SELECT ... FOR UPDATE` on a million rows dirties every page those rows live on and generates WAL for each of them.
-- Row locks do not appear in `pg_locks`. A transaction waiting for a row appears there as waiting for the `transactionid` of the transaction that holds it.
+- Held row locks normally do not appear in `pg_locks`. A transaction waiting for a row appears there as waiting for the `transactionid` of the transaction that holds it.
 
 ## Why two exclusive modes exist
 
@@ -102,7 +102,7 @@ SQLSTATE 55P03
 
 `SKIP LOCKED` silently leaves out rows that are locked and returns the rest. It turns a table into a work queue:
 
-![Three workers each claiming a different job row with FOR UPDATE SKIP LOCKED, where the third worker skips the two locked rows and takes the next available one](/writing/postgres-locks-skip-locked-queue.svg)
+![Three workers each claiming a different job row with FOR NO KEY UPDATE SKIP LOCKED, where the third worker skips the two locked rows and takes the next available one](/writing/postgres-locks-skip-locked-queue.svg)
 
 The canonical dequeue statement claims one job in a single round trip:
 
@@ -118,7 +118,7 @@ WHERE id = (
     WHERE status = 'queued'
       AND run_at <= now()
     ORDER BY run_at, id
-    FOR UPDATE SKIP LOCKED
+    FOR NO KEY UPDATE SKIP LOCKED
     LIMIT 1
 )
 RETURNING *;
@@ -126,7 +126,7 @@ RETURNING *;
 
 Each worker locks a different row without any coordination between workers, and no worker ever waits. Without `SKIP LOCKED`, every worker would select the same first row and all but one would block on it.
 
-`FOR UPDATE` is correct here rather than `FOR NO KEY UPDATE`, because a job is typically deleted or moved when it completes. Both would work for the claim itself.
+`FOR NO KEY UPDATE` is sufficient for the claim itself because it changes only non-key columns. Use `FOR UPDATE` if the same transaction will delete the job or change one of its key columns before committing.
 
 A row lock only lasts for the transaction, so the worker must decide where the transaction ends. Committing the claim and processing the job afterwards releases the lock quickly, but requires `locked_at` and a lease timeout so a crashed worker's job is eventually reclaimed. Holding the transaction open while processing makes a crash release the job automatically, at the cost of a long transaction and a held connection. The lease model scales better. The held-lock model is simpler when jobs are short.
 
@@ -169,7 +169,7 @@ When several transactions hold shared locks on one row, PostgreSQL cannot fit al
 
 Page-level locks protect a table page in the shared buffer pool while a row is read from it or written to it. They come in share and exclusive variants and are released as soon as the row operation completes, not at the end of the transaction.
 
-Nothing in SQL requests, releases, or configures them. They are listed here for completeness and because `page` is a possible `locktype` in `pg_locks`. If you see many `page` waits, the cause is usually extremely hot pages, such as the rightmost leaf of a B-tree index on a sequential key under heavy insert load.
+Nothing in SQL requests, releases, or configures them. They are listed here for completeness. Do not confuse them with `BufferContent` lightweight-lock waits, which report contention while accessing data pages in memory. Those waits can arise on extremely hot pages, such as the rightmost leaf of a B-tree index on a sequential key under heavy insert load.
 
 ## What to take from this part
 

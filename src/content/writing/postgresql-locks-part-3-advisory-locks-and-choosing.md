@@ -43,12 +43,12 @@ Transaction scope is the safe default, for one reason above all others. Connecti
 
 Advisory locks fit work where the thing being protected has no row, or where locking its row would block unrelated traffic:
 
-- **Singleton jobs.** Several application instances run the same scheduler, and only one of them should execute a given job per tick.
+- **Singleton jobs.** Several application instances run the same scheduler, and no two instances should execute a given job concurrently.
 - **Per-tenant serialization.** Rebuilding a tenant's search index or cache must not run twice concurrently, but locking the tenant row would block every ordinary write for that tenant.
 - **Coordinating with systems outside the database.** A lock held while writing files or calling an external API is a promise between application instances, not about database rows.
 - **Migration runners.** Several tools, including Rails, take an advisory lock so that two deploys do not run migrations at once.
 
-A scheduled job that must run at most once per tick looks like this:
+A scheduled job that must not run concurrently across instances looks like this:
 
 ```ts
 const JOB_NAMESPACE = 1;
@@ -81,7 +81,7 @@ async function runSingleton(
 }
 ```
 
-An instance that loses the race skips the tick immediately instead of queuing behind the winner and running the job a second time.
+An instance that loses an overlapping race skips the tick immediately instead of queuing behind the winner. The lock prevents concurrent execution, not repeated execution after the winner releases it. Guaranteeing at-most-once execution requires a durable record, usually enforced with a unique constraint.
 
 ### Advisory lock pitfalls
 
@@ -174,7 +174,7 @@ Rows with `granted = false` are the queue. A held `ACCESS SHARE` from a session 
 Four settings deserve deliberate values rather than defaults:
 
 - `lock_timeout` bounds every lock wait. Set it per session in migration tooling and consider a generous default for application connections.
-- `statement_timeout` bounds how long a statement may run, which bounds how long its locks are held.
+- `statement_timeout` bounds how long a statement may run, but its locks remain held until the transaction ends.
 - `idle_in_transaction_session_timeout` kills sessions that stop mid-transaction. It is the single most effective setting against locks held by forgotten transactions.
 - `log_lock_waits = on` writes a log line whenever a session waits longer than `deadlock_timeout`. It costs almost nothing and makes lock contention visible before it becomes an incident.
 

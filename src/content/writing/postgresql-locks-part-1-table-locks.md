@@ -68,7 +68,7 @@ Four observations fall out of the matrix:
 | Operation | Lock mode | Work |
 | --- | --- | --- |
 | `ADD COLUMN` with no default or a constant default | `ACCESS EXCLUSIVE` | Catalog update only, milliseconds |
-| `ADD COLUMN` with a volatile default such as `now()` | `ACCESS EXCLUSIVE` | Full table rewrite |
+| `ADD COLUMN` with a volatile default such as `clock_timestamp()` | `ACCESS EXCLUSIVE` | Full table rewrite |
 | `ALTER COLUMN ... TYPE` | `ACCESS EXCLUSIVE` | Full table rewrite in most cases |
 | `ALTER COLUMN ... SET NOT NULL` | `ACCESS EXCLUSIVE` | Full table scan, skipped if a valid `CHECK (col IS NOT NULL)` exists |
 | `ADD CONSTRAINT ... CHECK` | `ACCESS EXCLUSIVE` | Full table scan |
@@ -76,7 +76,7 @@ Four observations fall out of the matrix:
 | `ADD FOREIGN KEY`, with or without `NOT VALID` | `SHARE ROW EXCLUSIVE` on both tables | Scan of the referencing table unless `NOT VALID` |
 | `VALIDATE CONSTRAINT` | `SHARE UPDATE EXCLUSIVE` | Full table scan while writes continue |
 | `SET STATISTICS`, `SET (fillfactor)`, `SET (autovacuum_*)` | `SHARE UPDATE EXCLUSIVE` | Catalog update only |
-| `ATTACH PARTITION` | `SHARE UPDATE EXCLUSIVE` on the parent | Scan of the partition unless a matching `CHECK` exists |
+| `ATTACH PARTITION` | `SHARE UPDATE EXCLUSIVE` on the parent; `ACCESS EXCLUSIVE` on the attached partition and the default partition, if one exists | Scan of the partition unless a matching `CHECK` exists |
 | `DROP COLUMN` | `ACCESS EXCLUSIVE` | Catalog update only |
 | `CREATE INDEX` | `SHARE` | Full table scan, writes blocked |
 | `CREATE INDEX CONCURRENTLY` | `SHARE UPDATE EXCLUSIVE` | Two table scans, writes continue |
@@ -110,7 +110,7 @@ SQLSTATE 55P03
 
 The migration runner should catch `55P03`, wait with backoff, and try again. Each attempt blocks the application for at most three seconds. Without the timeout, one attempt can block it for as long as the oldest reader runs.
 
-Two related settings protect the other side. `statement_timeout` bounds how long a query may run, which bounds how long it can hold `ACCESS SHARE`. `idle_in_transaction_session_timeout` ends sessions that opened a transaction and then stopped issuing statements, which is the most common way a lock is held far longer than intended.
+Two related settings protect the other side. `statement_timeout` bounds how long a query may run, but its locks remain held until the transaction ends. `idle_in_transaction_session_timeout` ends sessions that opened a transaction and then stopped issuing statements, which is the most common way a lock is held far longer than intended.
 
 ## Taking a table lock explicitly
 
@@ -136,7 +136,7 @@ This is an instance of a general rule from the PostgreSQL documentation: the fir
 
 ## What to take from this part
 
-Table-level locks are mostly implicit, and the strong ones come from DDL. The conflict matrix tells you what a statement blocks, the amount of work tells you for how long, and the queue tells you why even a brief strong lock needs a `lock_timeout`. Reads are only ever blocked by `ACCESS EXCLUSIVE`, and writes are only blocked by `SHARE` and stronger.
+Table-level locks are mostly implicit, and the strong ones come from DDL. The conflict matrix tells you what a statement blocks, the amount of work tells you for how long, and the queue tells you why even a brief strong lock needs a `lock_timeout`. At the table level, plain reads are blocked only by `ACCESS EXCLUSIVE`. Writes are blocked by `SHARE`, `SHARE ROW EXCLUSIVE`, `EXCLUSIVE`, and `ACCESS EXCLUSIVE`.
 
 The next part moves down a level. Writers coordinate with each other through row-level locks, which have four modes of their own, a subtle split between two of them that exists for foreign keys, and two clauses that turn a table into a work queue. Continue with [Part 2: Row-Level Locks](/writing/postgresql-locks-part-2-row-locks/).
 
