@@ -11,9 +11,9 @@ const { href, title, date, description } = Astro.props;
 
 <li>
   <a href={href} class="block rounded-md border border-gray-200 p-3 transition-colors hover:bg-gray-50">
-    <div class="flex items-center justify-between">
+    <div class="flex items-baseline justify-between gap-4">
       <h3 class="font-medium text-black">{title}</h3>
-      <span class="text-xs text-gray-400">{date}</span>
+      <span class="shrink-0 whitespace-nowrap text-xs text-gray-400">{date}</span>
     </div>
     <p class="mt-1 text-sm text-gray-700">{description}</p>
   </a>

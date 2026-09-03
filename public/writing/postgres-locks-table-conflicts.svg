@@ -1,0 +1,107 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 760" width="960" height="760" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace">
+  <rect width="960" height="760" fill="#fdfff4"/>
+  <text x="480" y="44" font-size="20" font-weight="700" fill="#000000" text-anchor="middle">Table-level lock conflicts</text>
+  <text x="480" y="70" font-size="12" font-style="italic" fill="#6B7280" text-anchor="middle">black = the two modes conflict, so the requester waits for the holder</text>
+  <text x="592" y="98" font-size="11" font-weight="700" fill="#374151" text-anchor="middle">HELD BY ANOTHER TRANSACTION</text>
+  <text x="258" y="142" font-size="11" font-weight="700" fill="#374151" text-anchor="end">REQUESTED</text>
+  <rect x="272" y="108" width="80" height="40" fill="#000000"/>
+  <text x="312" y="128" font-size="13" font-weight="700" fill="#fdfff4" text-anchor="middle" dominant-baseline="middle">AS</text>
+  <rect x="352" y="108" width="80" height="40" fill="#000000"/>
+  <text x="392" y="128" font-size="13" font-weight="700" fill="#fdfff4" text-anchor="middle" dominant-baseline="middle">RS</text>
+  <rect x="432" y="108" width="80" height="40" fill="#000000"/>
+  <text x="472" y="128" font-size="13" font-weight="700" fill="#fdfff4" text-anchor="middle" dominant-baseline="middle">RE</text>
+  <rect x="512" y="108" width="80" height="40" fill="#000000"/>
+  <text x="552" y="128" font-size="13" font-weight="700" fill="#fdfff4" text-anchor="middle" dominant-baseline="middle">SUE</text>
+  <rect x="592" y="108" width="80" height="40" fill="#000000"/>
+  <text x="632" y="128" font-size="13" font-weight="700" fill="#fdfff4" text-anchor="middle" dominant-baseline="middle">S</text>
+  <rect x="672" y="108" width="80" height="40" fill="#000000"/>
+  <text x="712" y="128" font-size="13" font-weight="700" fill="#fdfff4" text-anchor="middle" dominant-baseline="middle">SRE</text>
+  <rect x="752" y="108" width="80" height="40" fill="#000000"/>
+  <text x="792" y="128" font-size="13" font-weight="700" fill="#fdfff4" text-anchor="middle" dominant-baseline="middle">E</text>
+  <rect x="832" y="108" width="80" height="40" fill="#000000"/>
+  <text x="872" y="128" font-size="13" font-weight="700" fill="#fdfff4" text-anchor="middle" dominant-baseline="middle">AE</text>
+  <text x="258" y="181" font-size="12" font-weight="700" fill="#000000" text-anchor="end" dominant-baseline="middle">ACCESS SHARE</text>
+  <text x="258" y="198" font-size="10" fill="#6B7280" text-anchor="end" dominant-baseline="middle">SELECT</text>
+  <rect x="272" y="160" width="80" height="54" fill="#fdfff4" stroke="#D1D5DB" stroke-width="1.5"/>
+  <rect x="352" y="160" width="80" height="54" fill="#fdfff4" stroke="#D1D5DB" stroke-width="1.5"/>
+  <rect x="432" y="160" width="80" height="54" fill="#fdfff4" stroke="#D1D5DB" stroke-width="1.5"/>
+  <rect x="512" y="160" width="80" height="54" fill="#fdfff4" stroke="#D1D5DB" stroke-width="1.5"/>
+  <rect x="592" y="160" width="80" height="54" fill="#fdfff4" stroke="#D1D5DB" stroke-width="1.5"/>
+  <rect x="672" y="160" width="80" height="54" fill="#fdfff4" stroke="#D1D5DB" stroke-width="1.5"/>
+  <rect x="752" y="160" width="80" height="54" fill="#fdfff4" stroke="#D1D5DB" stroke-width="1.5"/>
+  <rect x="832" y="160" width="80" height="54" fill="#000000" stroke="#fdfff4" stroke-width="1.5"/>
+  <text x="258" y="235" font-size="12" font-weight="700" fill="#000000" text-anchor="end" dominant-baseline="middle">ROW SHARE</text>
+  <text x="258" y="252" font-size="10" fill="#6B7280" text-anchor="end" dominant-baseline="middle">SELECT ... FOR ...</text>
+  <rect x="272" y="214" width="80" height="54" fill="#fdfff4" stroke="#D1D5DB" stroke-width="1.5"/>
+  <rect x="352" y="214" width="80" height="54" fill="#fdfff4" stroke="#D1D5DB" stroke-width="1.5"/>
+  <rect x="432" y="214" width="80" height="54" fill="#fdfff4" stroke="#D1D5DB" stroke-width="1.5"/>
+  <rect x="512" y="214" width="80" height="54" fill="#fdfff4" stroke="#D1D5DB" stroke-width="1.5"/>
+  <rect x="592" y="214" width="80" height="54" fill="#fdfff4" stroke="#D1D5DB" stroke-width="1.5"/>
+  <rect x="672" y="214" width="80" height="54" fill="#fdfff4" stroke="#D1D5DB" stroke-width="1.5"/>
+  <rect x="752" y="214" width="80" height="54" fill="#000000" stroke="#fdfff4" stroke-width="1.5"/>
+  <rect x="832" y="214" width="80" height="54" fill="#000000" stroke="#fdfff4" stroke-width="1.5"/>
+  <text x="258" y="289" font-size="12" font-weight="700" fill="#000000" text-anchor="end" dominant-baseline="middle">ROW EXCLUSIVE</text>
+  <text x="258" y="306" font-size="10" fill="#6B7280" text-anchor="end" dominant-baseline="middle">INSERT, UPDATE, DELETE</text>
+  <rect x="272" y="268" width="80" height="54" fill="#fdfff4" stroke="#D1D5DB" stroke-width="1.5"/>
+  <rect x="352" y="268" width="80" height="54" fill="#fdfff4" stroke="#D1D5DB" stroke-width="1.5"/>
+  <rect x="432" y="268" width="80" height="54" fill="#fdfff4" stroke="#D1D5DB" stroke-width="1.5"/>
+  <rect x="512" y="268" width="80" height="54" fill="#fdfff4" stroke="#D1D5DB" stroke-width="1.5"/>
+  <rect x="592" y="268" width="80" height="54" fill="#000000" stroke="#fdfff4" stroke-width="1.5"/>
+  <rect x="672" y="268" width="80" height="54" fill="#000000" stroke="#fdfff4" stroke-width="1.5"/>
+  <rect x="752" y="268" width="80" height="54" fill="#000000" stroke="#fdfff4" stroke-width="1.5"/>
+  <rect x="832" y="268" width="80" height="54" fill="#000000" stroke="#fdfff4" stroke-width="1.5"/>
+  <text x="258" y="343" font-size="12" font-weight="700" fill="#000000" text-anchor="end" dominant-baseline="middle">SHARE UPDATE EXCLUSIVE</text>
+  <text x="258" y="360" font-size="10" fill="#6B7280" text-anchor="end" dominant-baseline="middle">VACUUM, CREATE INDEX CONC.</text>
+  <rect x="272" y="322" width="80" height="54" fill="#fdfff4" stroke="#D1D5DB" stroke-width="1.5"/>
+  <rect x="352" y="322" width="80" height="54" fill="#fdfff4" stroke="#D1D5DB" stroke-width="1.5"/>
+  <rect x="432" y="322" width="80" height="54" fill="#fdfff4" stroke="#D1D5DB" stroke-width="1.5"/>
+  <rect x="512" y="322" width="80" height="54" fill="#000000" stroke="#fdfff4" stroke-width="1.5"/>
+  <rect x="592" y="322" width="80" height="54" fill="#000000" stroke="#fdfff4" stroke-width="1.5"/>
+  <rect x="672" y="322" width="80" height="54" fill="#000000" stroke="#fdfff4" stroke-width="1.5"/>
+  <rect x="752" y="322" width="80" height="54" fill="#000000" stroke="#fdfff4" stroke-width="1.5"/>
+  <rect x="832" y="322" width="80" height="54" fill="#000000" stroke="#fdfff4" stroke-width="1.5"/>
+  <text x="258" y="397" font-size="12" font-weight="700" fill="#000000" text-anchor="end" dominant-baseline="middle">SHARE</text>
+  <text x="258" y="414" font-size="10" fill="#6B7280" text-anchor="end" dominant-baseline="middle">CREATE INDEX</text>
+  <rect x="272" y="376" width="80" height="54" fill="#fdfff4" stroke="#D1D5DB" stroke-width="1.5"/>
+  <rect x="352" y="376" width="80" height="54" fill="#fdfff4" stroke="#D1D5DB" stroke-width="1.5"/>
+  <rect x="432" y="376" width="80" height="54" fill="#000000" stroke="#fdfff4" stroke-width="1.5"/>
+  <rect x="512" y="376" width="80" height="54" fill="#000000" stroke="#fdfff4" stroke-width="1.5"/>
+  <rect x="592" y="376" width="80" height="54" fill="#fdfff4" stroke="#D1D5DB" stroke-width="1.5"/>
+  <rect x="672" y="376" width="80" height="54" fill="#000000" stroke="#fdfff4" stroke-width="1.5"/>
+  <rect x="752" y="376" width="80" height="54" fill="#000000" stroke="#fdfff4" stroke-width="1.5"/>
+  <rect x="832" y="376" width="80" height="54" fill="#000000" stroke="#fdfff4" stroke-width="1.5"/>
+  <text x="258" y="451" font-size="12" font-weight="700" fill="#000000" text-anchor="end" dominant-baseline="middle">SHARE ROW EXCLUSIVE</text>
+  <text x="258" y="468" font-size="10" fill="#6B7280" text-anchor="end" dominant-baseline="middle">CREATE TRIGGER, ADD FK</text>
+  <rect x="272" y="430" width="80" height="54" fill="#fdfff4" stroke="#D1D5DB" stroke-width="1.5"/>
+  <rect x="352" y="430" width="80" height="54" fill="#fdfff4" stroke="#D1D5DB" stroke-width="1.5"/>
+  <rect x="432" y="430" width="80" height="54" fill="#000000" stroke="#fdfff4" stroke-width="1.5"/>
+  <rect x="512" y="430" width="80" height="54" fill="#000000" stroke="#fdfff4" stroke-width="1.5"/>
+  <rect x="592" y="430" width="80" height="54" fill="#000000" stroke="#fdfff4" stroke-width="1.5"/>
+  <rect x="672" y="430" width="80" height="54" fill="#000000" stroke="#fdfff4" stroke-width="1.5"/>
+  <rect x="752" y="430" width="80" height="54" fill="#000000" stroke="#fdfff4" stroke-width="1.5"/>
+  <rect x="832" y="430" width="80" height="54" fill="#000000" stroke="#fdfff4" stroke-width="1.5"/>
+  <text x="258" y="505" font-size="12" font-weight="700" fill="#000000" text-anchor="end" dominant-baseline="middle">EXCLUSIVE</text>
+  <text x="258" y="522" font-size="10" fill="#6B7280" text-anchor="end" dominant-baseline="middle">REFRESH MAT. VIEW CONC.</text>
+  <rect x="272" y="484" width="80" height="54" fill="#fdfff4" stroke="#D1D5DB" stroke-width="1.5"/>
+  <rect x="352" y="484" width="80" height="54" fill="#000000" stroke="#fdfff4" stroke-width="1.5"/>
+  <rect x="432" y="484" width="80" height="54" fill="#000000" stroke="#fdfff4" stroke-width="1.5"/>
+  <rect x="512" y="484" width="80" height="54" fill="#000000" stroke="#fdfff4" stroke-width="1.5"/>
+  <rect x="592" y="484" width="80" height="54" fill="#000000" stroke="#fdfff4" stroke-width="1.5"/>
+  <rect x="672" y="484" width="80" height="54" fill="#000000" stroke="#fdfff4" stroke-width="1.5"/>
+  <rect x="752" y="484" width="80" height="54" fill="#000000" stroke="#fdfff4" stroke-width="1.5"/>
+  <rect x="832" y="484" width="80" height="54" fill="#000000" stroke="#fdfff4" stroke-width="1.5"/>
+  <text x="258" y="559" font-size="12" font-weight="700" fill="#000000" text-anchor="end" dominant-baseline="middle">ACCESS EXCLUSIVE</text>
+  <text x="258" y="576" font-size="10" fill="#6B7280" text-anchor="end" dominant-baseline="middle">ALTER TABLE, DROP, TRUNCATE</text>
+  <rect x="272" y="538" width="80" height="54" fill="#000000" stroke="#fdfff4" stroke-width="1.5"/>
+  <rect x="352" y="538" width="80" height="54" fill="#000000" stroke="#fdfff4" stroke-width="1.5"/>
+  <rect x="432" y="538" width="80" height="54" fill="#000000" stroke="#fdfff4" stroke-width="1.5"/>
+  <rect x="512" y="538" width="80" height="54" fill="#000000" stroke="#fdfff4" stroke-width="1.5"/>
+  <rect x="592" y="538" width="80" height="54" fill="#000000" stroke="#fdfff4" stroke-width="1.5"/>
+  <rect x="672" y="538" width="80" height="54" fill="#000000" stroke="#fdfff4" stroke-width="1.5"/>
+  <rect x="752" y="538" width="80" height="54" fill="#000000" stroke="#fdfff4" stroke-width="1.5"/>
+  <rect x="832" y="538" width="80" height="54" fill="#000000" stroke="#fdfff4" stroke-width="1.5"/>
+  <text x="480" y="632" font-size="11" fill="#374151" text-anchor="middle">AS = ACCESS SHARE · RS = ROW SHARE · RE = ROW EXCLUSIVE · SUE = SHARE UPDATE EXCLUSIVE</text>
+  <text x="480" y="650" font-size="11" fill="#374151" text-anchor="middle">S = SHARE · SRE = SHARE ROW EXCLUSIVE · E = EXCLUSIVE · AE = ACCESS EXCLUSIVE</text>
+  <rect x="100" y="680" width="760" height="48" rx="8" fill="#fdfff4" stroke="#000000" stroke-width="2.5"/>
+  <text x="480" y="704" font-size="13" font-weight="700" fill="#000000" text-anchor="middle" dominant-baseline="middle">Only ACCESS EXCLUSIVE conflicts with ACCESS SHARE, so only it blocks a plain SELECT</text>
+</svg>

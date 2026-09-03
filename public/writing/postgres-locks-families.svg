@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 620" width="960" height="620" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace">
+  <rect width="960" height="620" fill="#fdfff4"/>
+
+  <text x="480" y="48" font-size="20" font-weight="700" fill="#000000" text-anchor="middle">Four families of locks</text>
+
+  <!-- Table-level -->
+  <rect x="35" y="88" width="430" height="196" rx="8" fill="#fdfff4" stroke="#000000" stroke-width="2.5"/>
+  <rect x="35" y="88" width="430" height="44" rx="8" fill="#000000"/>
+  <rect x="35" y="110" width="430" height="22" fill="#000000"/>
+  <text x="250" y="110" font-size="15" font-weight="700" fill="#fdfff4" text-anchor="middle" dominant-baseline="middle">TABLE-LEVEL</text>
+  <text x="53" y="158" font-size="11" font-weight="700" fill="#111827">protects</text>
+  <text x="149" y="158" font-size="11" fill="#374151">the whole table</text>
+  <text x="53" y="184" font-size="11" font-weight="700" fill="#111827">taken by</text>
+  <text x="149" y="184" font-size="11" fill="#374151">every statement; LOCK TABLE explicitly</text>
+  <text x="53" y="210" font-size="11" font-weight="700" fill="#111827">stored in</text>
+  <text x="149" y="210" font-size="11" fill="#374151">the shared memory lock table</text>
+  <text x="53" y="236" font-size="11" font-weight="700" fill="#111827">held until</text>
+  <text x="149" y="236" font-size="11" fill="#374151">end of transaction</text>
+  <text x="53" y="262" font-size="11" font-weight="700" fill="#111827">modes</text>
+  <text x="149" y="262" font-size="11" fill="#374151">8, ACCESS SHARE to ACCESS EXCLUSIVE</text>
+
+  <!-- Row-level -->
+  <rect x="495" y="88" width="430" height="196" rx="8" fill="#fdfff4" stroke="#000000" stroke-width="2.5"/>
+  <rect x="495" y="88" width="430" height="44" rx="8" fill="#000000"/>
+  <rect x="495" y="110" width="430" height="22" fill="#000000"/>
+  <text x="710" y="110" font-size="15" font-weight="700" fill="#fdfff4" text-anchor="middle" dominant-baseline="middle">ROW-LEVEL</text>
+  <text x="513" y="158" font-size="11" font-weight="700" fill="#111827">protects</text>
+  <text x="609" y="158" font-size="11" fill="#374151">rows against writers and lockers</text>
+  <text x="513" y="184" font-size="11" font-weight="700" fill="#111827">taken by</text>
+  <text x="609" y="184" font-size="11" fill="#374151">UPDATE, DELETE, FK checks; SELECT FOR</text>
+  <text x="513" y="210" font-size="11" font-weight="700" fill="#111827">stored in</text>
+  <text x="609" y="210" font-size="11" fill="#374151">the tuple header on disk (xmax)</text>
+  <text x="513" y="236" font-size="11" font-weight="700" fill="#111827">held until</text>
+  <text x="609" y="236" font-size="11" fill="#374151">end of transaction</text>
+  <text x="513" y="262" font-size="11" font-weight="700" fill="#111827">modes</text>
+  <text x="609" y="262" font-size="11" fill="#374151">4, FOR KEY SHARE to FOR UPDATE</text>
+
+  <!-- Page-level -->
+  <rect x="35" y="312" width="430" height="196" rx="8" fill="#F3F4F6" stroke="#D1D5DB" stroke-width="2"/>
+  <rect x="35" y="312" width="430" height="44" rx="8" fill="#D1D5DB"/>
+  <rect x="35" y="334" width="430" height="22" fill="#D1D5DB"/>
+  <text x="250" y="334" font-size="15" font-weight="700" fill="#111827" text-anchor="middle" dominant-baseline="middle">PAGE-LEVEL</text>
+  <text x="53" y="382" font-size="11" font-weight="700" fill="#111827">protects</text>
+  <text x="149" y="382" font-size="11" fill="#374151">a buffer page during one row operation</text>
+  <text x="53" y="408" font-size="11" font-weight="700" fill="#111827">taken by</text>
+  <text x="149" y="408" font-size="11" fill="#374151">the executor, never by SQL</text>
+  <text x="53" y="434" font-size="11" font-weight="700" fill="#111827">stored in</text>
+  <text x="149" y="434" font-size="11" fill="#374151">shared memory</text>
+  <text x="53" y="460" font-size="11" font-weight="700" fill="#111827">held until</text>
+  <text x="149" y="460" font-size="11" fill="#374151">the row is fetched or written</text>
+  <text x="53" y="486" font-size="11" font-weight="700" fill="#111827">modes</text>
+  <text x="149" y="486" font-size="11" fill="#374151">share, exclusive</text>
+
+  <!-- Advisory -->
+  <rect x="495" y="312" width="430" height="196" rx="8" fill="#fdfff4" stroke="#000000" stroke-width="2.5"/>
+  <rect x="495" y="312" width="430" height="44" rx="8" fill="#000000"/>
+  <rect x="495" y="334" width="430" height="22" fill="#000000"/>
+  <text x="710" y="334" font-size="15" font-weight="700" fill="#fdfff4" text-anchor="middle" dominant-baseline="middle">ADVISORY</text>
+  <text x="513" y="382" font-size="11" font-weight="700" fill="#111827">protects</text>
+  <text x="609" y="382" font-size="11" fill="#374151">whatever the application says a key means</text>
+  <text x="513" y="408" font-size="11" font-weight="700" fill="#111827">taken by</text>
+  <text x="609" y="408" font-size="11" fill="#374151">pg_advisory_* functions only</text>
+  <text x="513" y="434" font-size="11" font-weight="700" fill="#111827">stored in</text>
+  <text x="609" y="434" font-size="11" fill="#374151">the shared memory lock table</text>
+  <text x="513" y="460" font-size="11" font-weight="700" fill="#111827">held until</text>
+  <text x="609" y="460" font-size="11" fill="#374151">end of transaction, or end of session</text>
+  <text x="513" y="486" font-size="11" font-weight="700" fill="#111827">modes</text>
+  <text x="609" y="486" font-size="11" fill="#374151">shared, exclusive; wait or try</text>
+
+  <rect x="50" y="540" width="860" height="48" rx="8" fill="#F3F4F6" stroke="#D1D5DB" stroke-width="2"/>
+  <text x="480" y="564" font-size="12" font-weight="600" fill="#374151" text-anchor="middle" dominant-baseline="middle">Table and row locks last until the transaction ends. Page locks and session advisory locks are the exceptions.</text>
+</svg>

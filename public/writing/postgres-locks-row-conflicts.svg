@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 668" width="960" height="668" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace">
+  <rect width="960" height="668" fill="#fdfff4"/>
+  <text x="480" y="44" font-size="20" font-weight="700" fill="#000000" text-anchor="middle">Row-level lock conflicts</text>
+  <text x="480" y="70" font-size="12" font-style="italic" fill="#6B7280" text-anchor="middle">black = conflict; each step up the ladder blocks more concurrent work</text>
+  <text x="592" y="98" font-size="11" font-weight="700" fill="#374151" text-anchor="middle">HELD BY ANOTHER TRANSACTION</text>
+  <text x="258" y="150" font-size="11" font-weight="700" fill="#374151" text-anchor="end">REQUESTED</text>
+  <rect x="272" y="108" width="160" height="48" fill="#000000"/>
+  <text x="352" y="125" font-size="12" font-weight="700" fill="#fdfff4" text-anchor="middle" dominant-baseline="middle">FOR KEY</text>
+  <text x="352" y="142" font-size="12" font-weight="700" fill="#fdfff4" text-anchor="middle" dominant-baseline="middle">SHARE</text>
+  <rect x="432" y="108" width="160" height="48" fill="#000000"/>
+  <text x="512" y="125" font-size="12" font-weight="700" fill="#fdfff4" text-anchor="middle" dominant-baseline="middle">FOR</text>
+  <text x="512" y="142" font-size="12" font-weight="700" fill="#fdfff4" text-anchor="middle" dominant-baseline="middle">SHARE</text>
+  <rect x="592" y="108" width="160" height="48" fill="#000000"/>
+  <text x="672" y="125" font-size="12" font-weight="700" fill="#fdfff4" text-anchor="middle" dominant-baseline="middle">FOR NO KEY</text>
+  <text x="672" y="142" font-size="12" font-weight="700" fill="#fdfff4" text-anchor="middle" dominant-baseline="middle">UPDATE</text>
+  <rect x="752" y="108" width="160" height="48" fill="#000000"/>
+  <text x="832" y="125" font-size="12" font-weight="700" fill="#fdfff4" text-anchor="middle" dominant-baseline="middle">FOR</text>
+  <text x="832" y="142" font-size="12" font-weight="700" fill="#fdfff4" text-anchor="middle" dominant-baseline="middle">UPDATE</text>
+  <text x="258" y="190" font-size="12" font-weight="700" fill="#000000" text-anchor="end" dominant-baseline="middle">FOR KEY SHARE</text>
+  <text x="258" y="207" font-size="10" fill="#6B7280" text-anchor="end" dominant-baseline="middle">shared</text>
+  <rect x="272" y="168" width="160" height="56" fill="#fdfff4" stroke="#D1D5DB" stroke-width="1.5"/>
+  <rect x="432" y="168" width="160" height="56" fill="#fdfff4" stroke="#D1D5DB" stroke-width="1.5"/>
+  <rect x="592" y="168" width="160" height="56" fill="#fdfff4" stroke="#D1D5DB" stroke-width="1.5"/>
+  <rect x="752" y="168" width="160" height="56" fill="#000000" stroke="#fdfff4" stroke-width="1.5"/>
+  <text x="258" y="246" font-size="12" font-weight="700" fill="#000000" text-anchor="end" dominant-baseline="middle">FOR SHARE</text>
+  <text x="258" y="263" font-size="10" fill="#6B7280" text-anchor="end" dominant-baseline="middle">shared</text>
+  <rect x="272" y="224" width="160" height="56" fill="#fdfff4" stroke="#D1D5DB" stroke-width="1.5"/>
+  <rect x="432" y="224" width="160" height="56" fill="#fdfff4" stroke="#D1D5DB" stroke-width="1.5"/>
+  <rect x="592" y="224" width="160" height="56" fill="#000000" stroke="#fdfff4" stroke-width="1.5"/>
+  <rect x="752" y="224" width="160" height="56" fill="#000000" stroke="#fdfff4" stroke-width="1.5"/>
+  <text x="258" y="302" font-size="12" font-weight="700" fill="#000000" text-anchor="end" dominant-baseline="middle">FOR NO KEY UPDATE</text>
+  <text x="258" y="319" font-size="10" fill="#6B7280" text-anchor="end" dominant-baseline="middle">exclusive</text>
+  <rect x="272" y="280" width="160" height="56" fill="#fdfff4" stroke="#D1D5DB" stroke-width="1.5"/>
+  <rect x="432" y="280" width="160" height="56" fill="#000000" stroke="#fdfff4" stroke-width="1.5"/>
+  <rect x="592" y="280" width="160" height="56" fill="#000000" stroke="#fdfff4" stroke-width="1.5"/>
+  <rect x="752" y="280" width="160" height="56" fill="#000000" stroke="#fdfff4" stroke-width="1.5"/>
+  <text x="258" y="358" font-size="12" font-weight="700" fill="#000000" text-anchor="end" dominant-baseline="middle">FOR UPDATE</text>
+  <text x="258" y="375" font-size="10" fill="#6B7280" text-anchor="end" dominant-baseline="middle">exclusive</text>
+  <rect x="272" y="336" width="160" height="56" fill="#000000" stroke="#fdfff4" stroke-width="1.5"/>
+  <rect x="432" y="336" width="160" height="56" fill="#000000" stroke="#fdfff4" stroke-width="1.5"/>
+  <rect x="592" y="336" width="160" height="56" fill="#000000" stroke="#fdfff4" stroke-width="1.5"/>
+  <rect x="752" y="336" width="160" height="56" fill="#000000" stroke="#fdfff4" stroke-width="1.5"/>
+  <text x="592" y="446" font-size="11" font-weight="700" fill="#374151" text-anchor="middle">ACQUIRED AUTOMATICALLY BY</text>
+  <rect x="278" y="460" width="148" height="92" rx="8" fill="#F3F4F6" stroke="#D1D5DB" stroke-width="2"/>
+  <text x="352" y="482" font-size="11" fill="#111827" text-anchor="middle" dominant-baseline="middle" font-weight="700">foreign key checks</text>
+  <text x="352" y="500" font-size="11" fill="#111827" text-anchor="middle" dominant-baseline="middle">on the parent row</text>
+  <text x="352" y="518" font-size="11" fill="#111827" text-anchor="middle" dominant-baseline="middle">when a child row</text>
+  <text x="352" y="536" font-size="11" fill="#111827" text-anchor="middle" dominant-baseline="middle">is inserted</text>
+  <rect x="438" y="460" width="148" height="92" rx="8" fill="#F3F4F6" stroke="#D1D5DB" stroke-width="2"/>
+  <text x="512" y="482" font-size="11" fill="#111827" text-anchor="middle" dominant-baseline="middle" font-weight="700">nothing</text>
+  <text x="512" y="500" font-size="11" fill="#111827" text-anchor="middle" dominant-baseline="middle">explicit SELECT</text>
+  <text x="512" y="518" font-size="11" fill="#111827" text-anchor="middle" dominant-baseline="middle">FOR SHARE only</text>
+  <rect x="598" y="460" width="148" height="92" rx="8" fill="#F3F4F6" stroke="#D1D5DB" stroke-width="2"/>
+  <text x="672" y="482" font-size="11" fill="#111827" text-anchor="middle" dominant-baseline="middle" font-weight="700">UPDATE that leaves</text>
+  <text x="672" y="500" font-size="11" fill="#111827" text-anchor="middle" dominant-baseline="middle">key columns</text>
+  <text x="672" y="518" font-size="11" fill="#111827" text-anchor="middle" dominant-baseline="middle">unchanged</text>
+  <rect x="758" y="460" width="148" height="92" rx="8" fill="#F3F4F6" stroke="#D1D5DB" stroke-width="2"/>
+  <text x="832" y="482" font-size="11" fill="#111827" text-anchor="middle" dominant-baseline="middle" font-weight="700">DELETE, and UPDATE</text>
+  <text x="832" y="500" font-size="11" fill="#111827" text-anchor="middle" dominant-baseline="middle">that changes a</text>
+  <text x="832" y="518" font-size="11" fill="#111827" text-anchor="middle" dominant-baseline="middle">primary key or</text>
+  <text x="832" y="536" font-size="11" fill="#111827" text-anchor="middle" dominant-baseline="middle">unique column</text>
+  <rect x="100" y="588" width="760" height="48" rx="8" fill="#fdfff4" stroke="#000000" stroke-width="2.5"/>
+  <text x="480" y="612" font-size="13" font-weight="700" fill="#000000" text-anchor="middle" dominant-baseline="middle">Readers never take row locks. Row locks block only writers and other lockers.</text>
+</svg>

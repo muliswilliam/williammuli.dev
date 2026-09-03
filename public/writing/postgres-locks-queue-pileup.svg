@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 660" width="960" height="660" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace">
+  <rect width="960" height="660" fill="#fdfff4"/>
+
+  <text x="480" y="48" font-size="20" font-weight="700" fill="#000000" text-anchor="middle">A waiting ACCESS EXCLUSIVE blocks everything queued behind it</text>
+
+  <text x="40" y="100" font-size="11" font-weight="700" fill="#374151">EVENT</text>
+  <text x="380" y="100" font-size="11" font-weight="700" fill="#374151" text-anchor="middle">HELD ON orders</text>
+  <text x="715" y="100" font-size="11" font-weight="700" fill="#374151" text-anchor="middle">WAITING, IN ARRIVAL ORDER</text>
+  <line x1="40" y1="110" x2="920" y2="110" stroke="#D1D5DB" stroke-width="1.5"/>
+
+  <!-- row 1 -->
+  <circle cx="58" cy="164" r="14" fill="#000000"/>
+  <text x="58" y="164" font-size="13" font-weight="700" fill="#fdfff4" text-anchor="middle" dominant-baseline="middle">1</text>
+  <text x="82" y="160" font-size="13" font-weight="700" fill="#000000">Reporting query starts</text>
+  <text x="82" y="180" font-size="11" fill="#6B7280">long SELECT, 20 minutes</text>
+  <rect x="280" y="134" width="200" height="60" rx="8" fill="#000000"/>
+  <text x="380" y="158" font-size="13" font-weight="700" fill="#fdfff4" text-anchor="middle">ACCESS SHARE</text>
+  <text x="380" y="178" font-size="11" fill="#D1D5DB" text-anchor="middle">reporting query</text>
+  <rect x="510" y="139" width="410" height="50" rx="8" fill="none" stroke="#D1D5DB" stroke-width="2" stroke-dasharray="6,6"/>
+  <text x="715" y="164" font-size="12" font-style="italic" fill="#6B7280" text-anchor="middle" dominant-baseline="middle">queue empty</text>
+
+  <!-- row 2 -->
+  <circle cx="58" cy="276" r="14" fill="#fdfff4" stroke="#000000" stroke-width="2"/>
+  <text x="58" y="276" font-size="13" font-weight="700" fill="#000000" text-anchor="middle" dominant-baseline="middle">2</text>
+  <text x="82" y="272" font-size="13" font-weight="700" fill="#000000">Migration starts</text>
+  <text x="82" y="292" font-size="11" fill="#6B7280">ALTER TABLE ADD COLUMN</text>
+  <rect x="280" y="246" width="200" height="60" rx="8" fill="#000000"/>
+  <text x="380" y="270" font-size="13" font-weight="700" fill="#fdfff4" text-anchor="middle">ACCESS SHARE</text>
+  <text x="380" y="290" font-size="11" fill="#D1D5DB" text-anchor="middle">reporting query</text>
+  <rect x="510" y="251" width="150" height="50" rx="8" fill="#fdfff4" stroke="#000000" stroke-width="2.5"/>
+  <text x="585" y="271" font-size="11" font-weight="700" fill="#000000" text-anchor="middle">ACCESS EXCLUSIVE</text>
+  <text x="585" y="289" font-size="10" fill="#374151" text-anchor="middle">migration</text>
+  <text x="790" y="276" font-size="12" font-style="italic" fill="#6B7280" text-anchor="middle" dominant-baseline="middle">waits for the reader</text>
+
+  <!-- row 3 -->
+  <circle cx="58" cy="388" r="14" fill="#000000"/>
+  <text x="58" y="388" font-size="13" font-weight="700" fill="#fdfff4" text-anchor="middle" dominant-baseline="middle">3</text>
+  <text x="82" y="384" font-size="13" font-weight="700" fill="#000000">App requests arrive</text>
+  <text x="82" y="404" font-size="11" fill="#6B7280">SELECT ... WHERE id = $1</text>
+  <rect x="280" y="358" width="200" height="60" rx="8" fill="#000000"/>
+  <text x="380" y="382" font-size="13" font-weight="700" fill="#fdfff4" text-anchor="middle">ACCESS SHARE</text>
+  <text x="380" y="402" font-size="11" fill="#D1D5DB" text-anchor="middle">reporting query</text>
+  <rect x="510" y="363" width="150" height="50" rx="8" fill="#fdfff4" stroke="#000000" stroke-width="2.5"/>
+  <text x="585" y="383" font-size="11" font-weight="700" fill="#000000" text-anchor="middle">ACCESS EXCLUSIVE</text>
+  <text x="585" y="401" font-size="10" fill="#374151" text-anchor="middle">migration</text>
+  <rect x="668" y="363" width="76" height="50" rx="8" fill="#F3F4F6" stroke="#D1D5DB" stroke-width="2"/>
+  <text x="706" y="383" font-size="12" font-weight="700" fill="#111827" text-anchor="middle">AS</text>
+  <text x="706" y="401" font-size="10" fill="#374151" text-anchor="middle">app</text>
+  <rect x="752" y="363" width="76" height="50" rx="8" fill="#F3F4F6" stroke="#D1D5DB" stroke-width="2"/>
+  <text x="790" y="383" font-size="12" font-weight="700" fill="#111827" text-anchor="middle">AS</text>
+  <text x="790" y="401" font-size="10" fill="#374151" text-anchor="middle">app</text>
+  <rect x="836" y="363" width="76" height="50" rx="8" fill="#F3F4F6" stroke="#D1D5DB" stroke-width="2"/>
+  <text x="874" y="383" font-size="12" font-weight="700" fill="#111827" text-anchor="middle">AS</text>
+  <text x="874" y="401" font-size="10" fill="#374151" text-anchor="middle">app</text>
+  <text x="715" y="434" font-size="12" font-weight="700" fill="#000000" text-anchor="middle">SELECT never conflicts with SELECT, yet the app is down</text>
+
+  <!-- row 4 -->
+  <circle cx="58" cy="500" r="14" fill="#fdfff4" stroke="#000000" stroke-width="2"/>
+  <text x="58" y="500" font-size="13" font-weight="700" fill="#000000" text-anchor="middle" dominant-baseline="middle">4</text>
+  <text x="82" y="496" font-size="13" font-weight="700" fill="#000000">Reporting query ends</text>
+  <text x="82" y="516" font-size="11" fill="#6B7280">ACCESS SHARE released</text>
+  <rect x="280" y="470" width="200" height="60" rx="8" fill="#000000"/>
+  <text x="380" y="494" font-size="13" font-weight="700" fill="#fdfff4" text-anchor="middle">ACCESS EXCLUSIVE</text>
+  <text x="380" y="514" font-size="11" fill="#D1D5DB" text-anchor="middle">migration, 4 ms</text>
+  <rect x="510" y="475" width="76" height="50" rx="8" fill="#F3F4F6" stroke="#D1D5DB" stroke-width="2"/>
+  <text x="548" y="495" font-size="12" font-weight="700" fill="#111827" text-anchor="middle">AS</text>
+  <text x="548" y="513" font-size="10" fill="#374151" text-anchor="middle">app</text>
+  <rect x="594" y="475" width="76" height="50" rx="8" fill="#F3F4F6" stroke="#D1D5DB" stroke-width="2"/>
+  <text x="632" y="495" font-size="12" font-weight="700" fill="#111827" text-anchor="middle">AS</text>
+  <text x="632" y="513" font-size="10" fill="#374151" text-anchor="middle">app</text>
+  <rect x="678" y="475" width="76" height="50" rx="8" fill="#F3F4F6" stroke="#D1D5DB" stroke-width="2"/>
+  <text x="716" y="495" font-size="12" font-weight="700" fill="#111827" text-anchor="middle">AS</text>
+  <text x="716" y="513" font-size="10" fill="#374151" text-anchor="middle">app</text>
+  <text x="838" y="500" font-size="12" font-style="italic" fill="#6B7280" text-anchor="middle" dominant-baseline="middle">then the app resumes</text>
+
+  <rect x="90" y="580" width="780" height="48" rx="8" fill="#F3F4F6" stroke="#D1D5DB" stroke-width="2"/>
+  <text x="480" y="604" font-size="12" font-weight="600" fill="#374151" text-anchor="middle" dominant-baseline="middle">New requests are checked against waiting requests too. Bound the wait with lock_timeout and retry.</text>
+</svg>
