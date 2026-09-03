@@ -14,9 +14,21 @@ export async function getStaticPaths() {
 }
 
 const { post } = Astro.props;
-const { title, description, date, heroImage, heroAlt, tags } = post.data;
+const { title, description, date, heroImage, heroAlt, tags, series } = post.data;
 const { Content } = await render(post);
 const pageTitle = title.charAt(0).toUpperCase() + title.slice(1);
+
+const seriesParts = series
+  ? (await getCollection("writing"))
+      .filter((p) => p.data.series?.name === series.name)
+      .sort((a, b) => a.data.series!.part - b.data.series!.part)
+  : [];
+const currentIndex = seriesParts.findIndex((p) => p.id === post.id);
+const previousPart = currentIndex > 0 ? seriesParts[currentIndex - 1] : undefined;
+const nextPart =
+  currentIndex >= 0 && currentIndex < seriesParts.length - 1
+    ? seriesParts[currentIndex + 1]
+    : undefined;
 ---
 
 <Layout title={`${pageTitle} - William Muli`} description={description}>
@@ -41,6 +53,30 @@ const pageTitle = title.charAt(0).toUpperCase() + title.slice(1);
           </div>
         )}
 
+        {series && seriesParts.length > 1 && (
+          <nav aria-label="Series" class="mt-6 rounded-md border border-gray-200 px-4 py-3 text-xs">
+            <p class="text-gray-400">
+              {series.name} series, part {series.part} of {seriesParts.length}
+            </p>
+            <ol class="mt-2 space-y-1">
+              {seriesParts.map((part) =>
+                part.id === post.id ? (
+                  <li class="font-bold text-black">
+                    {part.data.series!.part}. {part.data.title}
+                  </li>
+                ) : (
+                  <li class="text-gray-500">
+                    {part.data.series!.part}.{" "}
+                    <a href={`/writing/${part.id}/`} class="underline hover:text-black">
+                      {part.data.title}
+                    </a>
+                  </li>
+                ),
+              )}
+            </ol>
+          </nav>
+        )}
+
         {heroImage && (
           <img src={heroImage} alt={heroAlt} class="mt-6 w-full rounded-md border border-gray-200 object-cover" />
         )}
@@ -48,6 +84,25 @@ const pageTitle = title.charAt(0).toUpperCase() + title.slice(1);
         <div class="article-content mt-6 text-gray-800">
           <Content />
         </div>
+
+        {(previousPart || nextPart) && (
+          <nav aria-label="Series navigation" class="mt-12 flex justify-between gap-4 border-t border-gray-200 pt-6 text-xs">
+            <div>
+              {previousPart && (
+                <a href={`/writing/${previousPart.id}/`} class="text-gray-500 underline hover:text-black">
+                  ← {previousPart.data.title}
+                </a>
+              )}
+            </div>
+            <div class="text-right">
+              {nextPart && (
+                <a href={`/writing/${nextPart.id}/`} class="text-gray-500 underline hover:text-black">
+                  {nextPart.data.title} →
+                </a>
+              )}
+            </div>
+          </nav>
+        )}
       </article>
     </main>
   </div>

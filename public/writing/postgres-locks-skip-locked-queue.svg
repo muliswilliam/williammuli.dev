@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 600" width="960" height="600" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace">
+  <defs>
+    <marker id="q-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#000000"/>
+    </marker>
+  </defs>
+
+  <rect width="960" height="600" fill="#fdfff4"/>
+  <text x="480" y="48" font-size="20" font-weight="700" fill="#000000" text-anchor="middle">Three workers claim three different jobs with SKIP LOCKED</text>
+
+  <!-- jobs table -->
+  <text x="520" y="106" font-size="11" font-weight="700" fill="#374151">jobs WHERE status = 'queued' ORDER BY run_at, id</text>
+
+  <rect x="520" y="120" width="400" height="48" rx="8" fill="#F3F4F6" stroke="#D1D5DB" stroke-width="2"/>
+  <text x="536" y="144" font-size="12" fill="#111827" dominant-baseline="middle"><tspan font-weight="700">id 1</tspan>  run_at 09:00:01</text>
+  <rect x="790" y="130" width="120" height="28" rx="6" fill="#000000"/>
+  <text x="850" y="144" font-size="11" font-weight="700" fill="#fdfff4" text-anchor="middle" dominant-baseline="middle">LOCKED W1</text>
+
+  <rect x="520" y="178" width="400" height="48" rx="8" fill="#F3F4F6" stroke="#D1D5DB" stroke-width="2"/>
+  <text x="536" y="202" font-size="12" fill="#111827" dominant-baseline="middle"><tspan font-weight="700">id 2</tspan>  run_at 09:00:02</text>
+  <rect x="790" y="188" width="120" height="28" rx="6" fill="#000000"/>
+  <text x="850" y="202" font-size="11" font-weight="700" fill="#fdfff4" text-anchor="middle" dominant-baseline="middle">LOCKED W2</text>
+
+  <rect x="520" y="236" width="400" height="48" rx="8" fill="#F3F4F6" stroke="#D1D5DB" stroke-width="2"/>
+  <text x="536" y="260" font-size="12" fill="#111827" dominant-baseline="middle"><tspan font-weight="700">id 3</tspan>  run_at 09:00:02</text>
+  <rect x="790" y="246" width="120" height="28" rx="6" fill="#000000"/>
+  <text x="850" y="260" font-size="11" font-weight="700" fill="#fdfff4" text-anchor="middle" dominant-baseline="middle">LOCKED W3</text>
+
+  <rect x="520" y="294" width="400" height="48" rx="8" fill="#fdfff4" stroke="#D1D5DB" stroke-width="2"/>
+  <text x="536" y="318" font-size="12" fill="#111827" dominant-baseline="middle"><tspan font-weight="700">id 4</tspan>  run_at 09:00:05</text>
+  <text x="850" y="318" font-size="11" font-style="italic" fill="#6B7280" text-anchor="middle" dominant-baseline="middle">queued</text>
+
+  <rect x="520" y="352" width="400" height="48" rx="8" fill="#fdfff4" stroke="#D1D5DB" stroke-width="2"/>
+  <text x="536" y="376" font-size="12" fill="#111827" dominant-baseline="middle"><tspan font-weight="700">id 5</tspan>  run_at 09:00:07</text>
+  <text x="850" y="376" font-size="11" font-style="italic" fill="#6B7280" text-anchor="middle" dominant-baseline="middle">queued</text>
+
+  <rect x="520" y="410" width="400" height="48" rx="8" fill="#fdfff4" stroke="#D1D5DB" stroke-width="2"/>
+  <text x="536" y="434" font-size="12" fill="#111827" dominant-baseline="middle"><tspan font-weight="700">id 6</tspan>  run_at 09:00:09</text>
+  <text x="850" y="434" font-size="11" font-style="italic" fill="#6B7280" text-anchor="middle" dominant-baseline="middle">queued</text>
+
+  <!-- workers -->
+  <rect x="40" y="116" width="200" height="56" rx="8" fill="#000000"/>
+  <text x="140" y="138" font-size="15" font-weight="700" fill="#fdfff4" text-anchor="middle">Worker 1</text>
+  <text x="140" y="159" font-size="11" fill="#D1D5DB" text-anchor="middle">first unlocked row: 1</text>
+
+  <rect x="40" y="236" width="200" height="56" rx="8" fill="#000000"/>
+  <text x="140" y="258" font-size="15" font-weight="700" fill="#fdfff4" text-anchor="middle">Worker 2</text>
+  <text x="140" y="279" font-size="11" fill="#D1D5DB" text-anchor="middle">skips 1, takes 2</text>
+
+  <rect x="40" y="356" width="200" height="56" rx="8" fill="#000000"/>
+  <text x="140" y="378" font-size="15" font-weight="700" fill="#fdfff4" text-anchor="middle">Worker 3</text>
+  <text x="140" y="399" font-size="11" fill="#D1D5DB" text-anchor="middle">skips 1 and 2, takes 3</text>
+
+  <!-- arrows -->
+  <line x1="244" y1="144" x2="514" y2="144" stroke="#000000" stroke-width="2" marker-end="url(#q-arrow)"/>
+  <text x="380" y="132" font-size="11" font-weight="600" fill="#000000" text-anchor="middle">FOR UPDATE SKIP LOCKED LIMIT 1</text>
+
+  <path d="M244 264 L330 264 L330 202 L514 202" fill="none" stroke="#000000" stroke-width="2" marker-end="url(#q-arrow)"/>
+  <text x="422" y="190" font-size="11" font-style="italic" fill="#6B7280" text-anchor="middle">row 1 locked, skipped</text>
+
+  <path d="M244 384 L400 384 L400 260 L514 260" fill="none" stroke="#000000" stroke-width="2" marker-end="url(#q-arrow)"/>
+  <text x="392" y="334" font-size="11" font-style="italic" fill="#6B7280" text-anchor="end">rows 1 and 2 locked, skipped</text>
+
+  <text x="140" y="458" font-size="12" font-style="italic" fill="#6B7280" text-anchor="middle">no worker waits</text>
+
+  <rect x="60" y="500" width="840" height="48" rx="8" fill="#F3F4F6" stroke="#D1D5DB" stroke-width="2"/>
+  <text x="480" y="524" font-size="11" font-weight="600" fill="#374151" text-anchor="middle" dominant-baseline="middle">UPDATE jobs SET status = 'running' WHERE id = (SELECT id ... FOR UPDATE SKIP LOCKED LIMIT 1) RETURNING *</text>
+</svg>

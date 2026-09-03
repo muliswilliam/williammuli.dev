@@ -69,7 +69,9 @@ body {
 
 .article-content ol {
   list-style-type: decimal;
-  padding-left: 1.5em;
+  /* Wide enough for two-digit markers; the container clips horizontal
+     overflow, so a narrower indent cuts the numbers off. */
+  padding-left: 2.5em;
 }
 
 .article-content li + li {

@@ -10,6 +10,12 @@ const writing = defineCollection({
     heroImage: z.string().optional(),
     heroAlt: z.string().default("Heading image"),
     tags: z.array(z.string()).default([]),
+    series: z
+      .object({
+        name: z.string(),
+        part: z.number().int().positive(),
+      })
+      .optional(),
   }),
 });
 
